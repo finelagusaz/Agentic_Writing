@@ -49,7 +49,9 @@ description: マルチエージェントチームでWeb小説のエピソード�
 | Step 6.5P | `current-draft.txt` |
 | Step 6.5D | Step 6 と同じ + `current-direction.md`, `current-draft.txt` |
 | Step 7 | `current-draft.txt`, `current-direction.md` |
+| Step 7.5 | `episodes/{番号:2桁}_{タイトル}.txt`（Step 7 で保存済み）, `workspace/manager-review.md`, `workspace/reader-feedback-*.md` |
 | Step 7.6 | `story/plot-outline.md`, `story/handover-notes.md`, `story/episode-summaries.md` |
+| Step 8 | （なし — チームシャットダウンのみ） |
 
 ## 実行手順
 
@@ -108,16 +110,19 @@ step_status: "completed"
 - [ ] step5: Reader Feedback (Collect)
 - [ ] step6: Judgment
 - [ ] step6.5p: Polish (conditional)
+- [ ] step6.5d: Revision Discussion (conditional)
 - [ ] step7: Finalize
+- [ ] step7.5: Handover Notes Update
 - [ ] step7.6: Plot Update Discussion
 - [ ] step8: Team Shutdown
 
 ## Step 5 Detail
 
-（story/reader-personas.md に定義された各ペルソナIDを列挙）
-- [ ] persona-1
-- [ ] persona-2
-- [ ] persona-3
+（story/reader-personas.md に定義された各ペルソナIDを動的に列挙する。以下は例）
+- [ ] {ペルソナ1のID}
+- [ ] {ペルソナ2のID}
+- [ ] {ペルソナ3のID}
+...（ペルソナ数に応じて列挙。reader-personas.md の実際のIDを使用すること）
 
 ## Revision History
 
@@ -184,13 +189,15 @@ agents/{ファイル}.md を読み込み、チームリーダーからの指示�
 
 **読者**は Step 3 完了直後にバックグラウンドでスポーンする（team_name **なし**のサブエージェント）。Step 4/4D と並行してフィードバックを生成し、Step 5 で結果を回収する。
 
-| チームメイト | subagent_type | name | スポーンタイミング |
-|------------|---------------|------|------------------|
-| ペルソナ1 | novel-reader-ym | reader-1 | Step 3 完了直後（バックグラウンド） |
-| ペルソナ2 | novel-reader-af | reader-2 | Step 3 完了直後（バックグラウンド） |
-| ペルソナ3 | novel-reader-vet | reader-3 | Step 3 完了直後（バックグラウンド） |
+`story/reader-personas.md` を Read で読み込み、定義された全ペルソナの一覧（ID、名前、subagent_type）を取得する。各ペルソナに対応するサブエージェントを以下の要領でスポーンする:
 
-※ ペルソナ名とIDは `story/reader-personas.md` に定義された内容に従う
+| 項目 | 値 |
+|------|------|
+| subagent_type | reader-personas.md の各ペルソナに定義された subagent_type |
+| name | `reader-{ペルソナID}` |
+| スポーンタイミング | Step 3 完了直後（バックグラウンド） |
+
+※ ペルソナの数・名前・IDは全て `story/reader-personas.md` に定義された内容に従う（固定3名とは限らない）
 
 progress.md を更新: step1 を `[x]`、`current_step: "step1"`, `step_status: "completed"`
 
@@ -606,6 +613,8 @@ discussion-log.md に記録を追記し、progress.md を更新: `current_step: 
 
 ### Step 7: 確定・保存
 
+progress.md を更新: `current_step: "step7"`, `step_status: "in_progress"`
+
 リーダー（あなた自身）が直接実行する:
 
 1. エピソードタイトルを `workspace/current-direction.md` から取得
@@ -621,24 +630,22 @@ discussion-log.md に記録を追記し、progress.md を更新: `current_step: 
       - 【主な伏線】にアーク内で張られた重要伏線を列挙する
       - 圧縮後、該当話の詳細あらすじを「直近エピソード詳細」から削除する
        - 長い幕は自然な区切りでサブアークに分割してよい
-4. `story/quality-log.md` に品質記録を追記する
-   （ファイルが存在しない場合はヘッダー付きで新規作成）
-   記録する列:
-   - 話数、タイトル、リビジョン回数、Manager判定
-    - 各ペルソナ★（全ペルソナ分）、平均★、中央値★
-   - 議論回数（ディスカッションが発生したフェーズ数。discussion-log.md で「議論なし」以外のエントリを数える）
-   - ポリッシュ（Step 6.5P が発動したか: `○` / `-`）
-   - 主要指摘（最も頻出した指摘カテゴリを1語で: テンポ/描写/整合性/構成/表現/なし 等）
-   - 判定（PASS / PASS_WITH_POLISH / FORCE_PASS）
 
 → **Step 7.5 を実行**（editor に申し送り事項更新を委任）
+→ **Step 7.6 を実行**（プロット更新ディスカッション）
 
-5. workspace/ の全ファイルを `archive/episode-{番号:2桁}/` にコピー（progress.md, discussion-log.md を含む）
-6. workspace/ をクリーン（progress.md はアーカイブ後に自動削除される）
+4. workspace/ の全ファイルを `archive/episode-{番号:2桁}/` にコピー（progress.md, discussion-log.md を含む）
+5. workspace/ をクリーン（アーカイブ完了後に全ファイルを削除）
+
+progress.md を更新: step7 を `[x]`、`current_step: "step7"`, `step_status: "completed"`
+
+> **順序保証**: workspace のアーカイブ/クリーンは **Step 7.5 と Step 7.6 の完了後** に行う。Step 7.5 は `workspace/manager-review.md` と `workspace/reader-feedback-*.md` を参照するため。
 
 ***
 
 ### Step 7.5: 編集（申し送り事項更新）
+
+progress.md を更新: `current_step: "step7.5"`, `step_status: "in_progress"`
 
 SendMessage で **editor** に以下を指示:
 
@@ -659,7 +666,7 @@ story/handover-notes.md を更新してください。
 
 editor からの完了報告を待つ。
 
-→ **Step 7.6 を実行**（プロット更新ディスカッション）
+progress.md を更新: step7.5 を `[x]`、`current_step: "step7.5"`, `step_status: "completed"`
 
 ***
 
@@ -712,11 +719,23 @@ editor からメッセージがあれば議論に参加してください。
   - 違反がある場合（大筋の変更、4話以上先の大幅変更）→ editor に差し戻し、該当箇所の削除を指示
 - discussion-log.md に記録を追記
 
+**ディスカッション完了後**、`story/quality-log.md` に品質記録を追記する
+（ファイルが存在しない場合はヘッダー付きで新規作成）
+記録する列:
+- 話数、タイトル、リビジョン回数、Manager判定
+- 各ペルソナ★（全ペルソナ分）、平均★、中央値★
+- 議論回数（ディスカッションが発生したフェーズ数。discussion-log.md で「議論なし」以外のエントリを数える。**Step 7.6 の議論も含む**）
+- ポリッシュ（Step 6.5P が発動したか: `○` / `-`）
+- 主要指摘（最も頻出した指摘カテゴリを1語で: テンポ/描写/整合性/構成/表現/なし 等）
+- 判定（PASS / PASS_WITH_POLISH / FORCE_PASS）
+
 progress.md を更新: step7.6 を `[x]`、`current_step: "step7.6"`, `step_status: "completed"`
 
 ***
 
 ### Step 8: チームシャットダウン
+
+progress.md を更新: `current_step: "step8"`, `step_status: "in_progress"`
 
 全コアチームメイト（editor, author, manager）に `shutdown_request` を送り、全員がシャットダウンしたことを確認してから TeamDelete を実行する。
 
