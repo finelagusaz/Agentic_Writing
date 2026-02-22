@@ -100,7 +100,8 @@ Agentic_Writing/
 │   ├── plot-outline.md       # プロット骨格
 │   ├── writing-guide.md      # 文体ガイド + AI癖制御
 │   ├── reader-personas.md    # 読者ペルソナ
-│   └── episode-summaries.md  # 各話あらすじ
+│   ├── episode-summaries.md  # 各話あらすじ
+│   └── series-tracker.md     # 横断追跡（配分・登場密度・伏線進展・表現傾向）
 ├── episodes/                 # 確定済みエピソードの出力先
 ├── workspace/                # 作業ディレクトリ
 └── archive/                  # 過去ドラフト

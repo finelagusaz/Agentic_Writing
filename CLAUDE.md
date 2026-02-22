@@ -26,6 +26,7 @@ story/                   作品資料（/setup-story で生成）
   writing-guide.md       文体ガイド + AI癖制御
   reader-personas.md     読者ペルソナ定義
   episode-summaries.md   各話あらすじ
+  series-tracker.md      横断追跡（配分・登場密度・伏線進展・表現傾向）
   handover-notes.md      申し送り事項
   quality-log.md         品質記録
 episodes/                確定済みエピソード
@@ -66,6 +67,7 @@ archive/                 過去のドラフト
 - 各エージェントは自分の担当ファイルのみ出力する
 - workspace/ は作業ディレクトリ。エピソード確定時に archive/ にコピーされる
 - story/ の更新は editor が担当（handover-notes, plot-outline 等）
+- `story/series-tracker.md` が欠落・破損している場合、`/write-episode` の Step 1 でテンプレート自動再生成して継続する
 
 ### 品質管理
 - 担当者のレビュー判定は書面で確定し、議論で変更しない
