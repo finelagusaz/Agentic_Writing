@@ -24,7 +24,7 @@ disable-model-invocation: true
 
 ## 参照ファイルの読み込み規約
 
-- 常時適用: Step 0 完了後に `.claude/skills/write-episode/common-procedures.md` を Read し、以降すべてのステップで「出力検証」と「ディスカッション管理」を適用する。
+- 常時適用: Step 0 完了後（再開時は再開地点の決定直後、最初のステップ実行前）に `.claude/skills/write-episode/common-procedures.md` を Read し、以降すべてのステップで「出力検証」と「ディスカッション管理」を適用する。
 - 判定時のみ: Step 6 開始時に `.claude/skills/write-episode/judgment-logic.md` を Read する。
 - 確定処理時のみ: Step 7 開始時に `.claude/skills/write-episode/finalization-details.md` を Read する。
 
