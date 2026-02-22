@@ -138,7 +138,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 | `story/plot-outline.md` | Step 7.6（必要時） | 近未来プロット微修正 |
 | `story/quality-log.md` | Step 7.6 | 品質記録 |
 | `story/series-tracker.md` | Step 7 | 横断指標更新 |
-| `archive/episode-{番号:2桁}/` | Step 7 終盤 | 監査・再検証用保存 |
+| `archive/episode-{番号:2桁}/` | Step 8 終盤 | 監査・再検証用保存（`workspace/` 退避） |
 
 ## 8. 品質判定仕様
 
@@ -197,4 +197,3 @@ flowchart TD
 ```
 
 詳細手順・分岐図・レジューム状態遷移は `docs/workflows.md` を参照する。
-

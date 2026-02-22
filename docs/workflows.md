@@ -66,7 +66,7 @@ flowchart TD
 | 7 | 確定・保存 | リーダー | `episodes/*.txt` + `story/*` 更新 |
 | 7.5 | 申し送り更新 | editor | `handover-notes.md` |
 | 7.6 | プロット更新検討 | editor/manager | 必要時 `plot-outline.md` 更新 + `quality-log.md` |
-| 8 | チームシャットダウン | リーダー | 実行終了 |
+| 8 | チームシャットダウン | リーダー | `workspace/` 最終退避・クリーンを含む実行終了 |
 
 ### 4.2 条件付きステップの要点
 - `step2d`: 方針の実現可能性と品質懸念を事前解消
@@ -130,11 +130,11 @@ stateDiagram-v2
 | Step 7 | `episodes/{番号:2桁}_{タイトル}.txt`, `story/episode-summaries.md`, `story/series-tracker.md` |
 | Step 7.5 | `story/handover-notes.md` |
 | Step 7.6 | `story/quality-log.md`, （必要時）`story/plot-outline.md` |
-| Step 7 終盤 | `archive/episode-{番号:2桁}/` へ `workspace/` 退避 |
+| Step 8 終盤 | `archive/episode-{番号:2桁}/` へ `workspace/` 退避後、`workspace/` をクリーン |
 
 ## 8. 重要な運用ルール
 
 - `manager-review.md` の検証完了前に Step 4D を開始しない。
 - Step 5 は読者ごとの個別検証・個別リトライを行う。
-- Step 7 の `workspace` クリーンは Step 7.5/7.6 完了後に実行する。
+- Step 8 の `workspace` 退避/クリーンは Step 7.5/7.6 完了後、`progress.md` の Step 8 完了更新後に実行する。
 - `series-tracker.md` 欠落または必須見出し不足時は再生成して継続する。

@@ -1,6 +1,8 @@
 ---
 name: write-episode
 description: マルチエージェントチームでWeb小説のエピソードを自動執筆する。引数にエピソード番号を指定（例: /write-episode 1）
+argument-hint: "<episode_number> [--max-revisions=N]"
+disable-model-invocation: true
 ---
 
 # /write-episode — Web小説自動執筆スキル
@@ -15,43 +17,7 @@ description: マルチエージェントチームでWeb小説のエピソード�
 
 ## 再開（レジュメ）ロジック
 
-実行手順の**最初のアクション**として、以下の再開チェックを行う:
-
-1. `workspace/progress.md` を Glob で検索する
-2. **ファイルが存在しない場合**: 通常の新規開始（Step 0 へ）
-3. **ファイルが存在する場合**: Read で読み込み、YAML ブロックから `episode` と `current_step` を確認:
-   a. **episode が引数と一致する場合 → 再開モード**
-      - ユーザーに「既存の進捗を検出しました。第{N}話の {current_step} から再開します」と表示
-      - Step 0 を**スキップ**（workspace のクリーンを行わない）
-      - Step 1（チーム作成 + コアメンバースポーン）は**必ず実行**（チームはセッション間で維持されない）
-      - `current_step` と `step_status` から再開地点を決定:
-        - `step_status` が `completed` → 次のステップから再開
-        - `step_status` が `in_progress` → そのステップを再実行（Step 5 は部分完了を考慮）
-      - ディスカッションステップ（step2d, step4d）は状態が非永続。中断時はディスカッション全体を再実行
-      - 再開前に、再開先ステップの前提ファイルが存在・有効か Glob + Read で検証する。欠落時はユーザーに警告し新規開始にフォールバック
-      - `revision_count` を progress.md の値で復元
-   b. **episode が引数と異なる場合 → 警告モード**
-      - ユーザーに確認: 「workspace に第{M}話の進捗が残っています。第{N}話を開始すると失われます。続行しますか？」
-      - 承認 → 通常の新規開始（Step 0 へ）/ 拒否 → 中断
-4. **progress.md の形式が不正な場合**: ユーザーに警告し、新規開始にフォールバック
-
-### 前提ファイル一覧（再開時の検証用）
-
-| 再開先 | 必須ファイル |
-|-------|------------|
-| Step 2 | （なし） |
-| Step 2D | `current-direction.md` |
-| Step 3 | `current-direction.md`。revision_count > 0 の場合は `consolidated-feedback.md` も |
-| Step 4 | `current-direction.md`, `current-draft.txt` |
-| Step 4D | `current-direction.md`, `current-draft.txt`, `manager-review.md` |
-| Step 5 | `current-draft.txt` |
-| Step 6 | `manager-review.md`, `reader-feedback-*.md`（全読者分） |
-| Step 6.5P | `current-draft.txt` |
-| Step 6.5D | Step 6 と同じ + `current-direction.md`, `current-draft.txt` |
-| Step 7 | `current-draft.txt`, `current-direction.md` |
-| Step 7.5 | `episodes/{番号:2桁}_{タイトル}.txt`（Step 7 で保存済み）, `workspace/manager-review.md`, `workspace/reader-feedback-*.md` |
-| Step 7.6 | `story/plot-outline.md`, `story/handover-notes.md`, `story/episode-summaries.md` |
-| Step 8 | （なし — チームシャットダウンのみ） |
+実行手順の**最初のアクション**として、`.claude/skills/write-episode/resume-logic.md` を Read で読み込み、記載された再開チェック手順に従う。
 
 ## 実行手順
 
@@ -74,60 +40,12 @@ description: マルチエージェントチームでWeb小説のエピソード�
    ```
    # ディスカッションログ — 第{番号}話
    ```
-4. **`workspace/progress.md` を作成**（後述のフォーマットに従い初期テンプレートを出力）
+4. `.claude/skills/write-episode/progress-template.md` を Read で読み込み、変数（episode番号、max_revisions、`story/reader-personas.md` のペルソナID一覧）を置換して `workspace/progress.md` を作成する
 5. `mkdir -p archive/episode-{番号:2桁}` でアーカイブディレクトリを事前作成する
 6. 前話のエピソード（episodes/ 内）が存在するか確認
 7. revision_count = 0 として初期化
 8. `story/handover-notes.md` を読み込み、`[DEFERRED:ep{今回の番号}]` のタグが付いた項目を `[ACTIVE]` に昇格する（該当項目がなければスキップ）
 9. **progress.md を更新**: `current_step: "step0"`, `step_status: "completed"`, step0 を `[x]` に
-
-***
-
-### progress.md のフォーマット
-
-Step 0 で以下の内容で `workspace/progress.md` を作成する:
-
-```
-# Progress Tracker — Episode {番号:2桁}
-
-```yaml
-episode: {番号}
-max_revisions: {上限}
-revision_count: 0
-current_step: "step0"
-step_status: "completed"
-```
-
-## Completed Steps
-
-- [x] step0: Initialize
-- [ ] step1: Create Team + Spawn Core
-- [ ] step2: Editor Direction
-- [ ] step2d: Direction Discussion
-- [ ] step3: Author Draft
-- [ ] step4: Manager Review
-- [ ] step4d: Draft Discussion
-- [ ] step5: Reader Feedback (Collect)
-- [ ] step6: Judgment
-- [ ] step6.5p: Polish (conditional)
-- [ ] step6.5d: Revision Discussion (conditional)
-- [ ] step7: Finalize
-- [ ] step7.5: Handover Notes Update
-- [ ] step7.6: Plot Update Discussion
-- [ ] step8: Team Shutdown
-
-## Step 5 Detail
-
-（story/reader-personas.md に定義された各ペルソナIDを動的に列挙する。以下は例）
-- [ ] {ペルソナ1のID}
-- [ ] {ペルソナ2のID}
-- [ ] {ペルソナ3のID}
-...（ペルソナ数に応じて列挙。reader-personas.md の実際のIDを使用すること）
-
-## Revision History
-
-（なし）
-```
 
 ***
 
@@ -187,17 +105,7 @@ TeamCreate で `"novel-ep{番号}"` という名前のチームを作成する�
 agents/{ファイル}.md を読み込み、チームリーダーからの指示を待ってください。
 ```
 
-**読者**は Step 3 完了直後にバックグラウンドでスポーンする（team_name **なし**のサブエージェント）。Step 4/4D と並行してフィードバックを生成し、Step 5 で結果を回収する。
-
-`story/reader-personas.md` を Read で読み込み、定義された全ペルソナの一覧（ID、名前、subagent_type）を取得する。各ペルソナに対応するサブエージェントを以下の要領でスポーンする:
-
-| 項目 | 値 |
-|------|------|
-| subagent_type | reader-personas.md の各ペルソナに定義された subagent_type |
-| name | `reader-{ペルソナID}` |
-| スポーンタイミング | Step 3 完了直後（バックグラウンド） |
-
-※ ペルソナの数・名前・IDは全て `story/reader-personas.md` に定義された内容に従う（固定3名とは限らない）
+**読者**は Step 3 完了直後にバックグラウンドでスポーンする（詳細は「Step 3 完了時: 読者バックグラウンドスポーン」を参照）。`story/reader-personas.md` を Read で読み込み、定義された全ペルソナの一覧（ID、名前、subagent_type）を取得しておく。
 
 **series-tracker 自動復旧**:
 
@@ -339,7 +247,7 @@ Step 3 の出力検証が成功した直後、読者をバックグラウンド�
 
 **事前準備**: `story/reader-personas.md` を Read で読み込み、定義されたペルソナの一覧（ID、名前、評価視点）を取得する。
 
-読者は **team_name なし**、**run_in_background: true** のサブエージェントとしてスポーンする。各ペルソナを並列で Task スポーンする。
+読者は **team_name なし**、**run_in_background: true** のサブエージェントとしてスポーンする。各ペルソナを並列で Task スポーンする。各読者の `subagent_type` と `name`（`reader-{ペルソナID}`）は `story/reader-personas.md` の定義に従う（ペルソナ数は固定3名とは限らない）。
 
 **各読者ペルソナ** に（Task、team_name なし、run_in_background: true）:
 ```
@@ -666,15 +574,12 @@ progress.md を更新: `current_step: "step7"`, `step_status: "in_progress"`
    - **伏線・要素の進展追跡**: 今話で進展した要素の「最終進展話」「最終進展の具体的内容」を更新し「未進展話数」を0にリセットする。進展しなかった要素の「未進展話数」を+1する。2話以上未進展の要素があれば「現在の警告」を更新する。新たに追跡すべき要素があれば行を追加する
    - **表現パターン累積**: 確定したエピソード本文を Grep で走査し、今話の「身体部位比喩（抽象）」と「ダッシュ（——）」の回数をカウントして更新する。最も古い話のカウントを削除し5話合計を再計算する。さらに各行の「状態」を更新する（`1話上限` が数値なら「今話回数 > 上限」で `要分散`、それ以外は `正常`。`1話上限` が `—` の行は「5話合計 >= 10」で `要分散`、未満は `正常`）
 
+progress.md を更新: step7 を `[x]`、`current_step: "step7"`, `step_status: "completed"`
+
 → **Step 7.5 を実行**（editor に申し送り事項更新を委任）
 → **Step 7.6 を実行**（プロット更新ディスカッション）
 
-4. workspace/ の全ファイルを `archive/episode-{番号:2桁}/` にコピー（progress.md, discussion-log.md を含む）
-5. workspace/ をクリーン（アーカイブ完了後に全ファイルを削除）
-
-progress.md を更新: step7 を `[x]`、`current_step: "step7"`, `step_status: "completed"`
-
-> **順序保証**: workspace のアーカイブ/クリーンは **Step 7.5 と Step 7.6 の完了後** に行う。Step 7.5 は `workspace/manager-review.md` と `workspace/reader-feedback-*.md` を参照するため。
+> **順序保証**: workspace のアーカイブ/クリーンは **Step 8 の終盤**で実行する。Step 7.5 は `workspace/manager-review.md` と `workspace/reader-feedback-*.md` を参照し、Step 7.6 は `discussion-log.md` を更新するため。
 
 ***
 
@@ -725,15 +630,7 @@ progress.md を更新: `current_step: "step7.6"`, `step_status: "in_progress"`
 2. handover-notes.md の [DEFERRED] 項目が未来の話の展開に影響するか
 3. 未来の話（特に次話〜3話先）のプロット概要に追記・修正すべき点はあるか
 
-更新のガイドライン:
-- 更新してよいもの:
-  - 完了済みの話の箇条書きを、実際の展開で補足・修正
-  - 次話〜3話先の展開メモに、handover-notes の DEFERRED 項目や新たに張られた伏線を反映
-  - 演出の具体化（例: 「手紙が届く」→「灰色の鳥が羊皮紙の封筒を運ぶ。見覚えのある書体」）
-- 更新してはならないもの:
-  - 物語の大筋（幕構成、クライマックスの構造、最終話の結末）
-  - 4話以上先のプロットの大幅な変更（ユーザーの判断が必要）
-
+agents/editor.md の「プロット更新の管理」セクションのガイドラインに従ってください。
 修正が必要な場合は manager と相談の上、plot-outline.md を更新してください。
 修正不要であれば『プロット変更なし』と報告してください。
 ```
@@ -750,7 +647,7 @@ editor からメッセージがあれば議論に参加してください。
 **ディスカッション管理**:
 - 最大2ラウンド
 - editor が「プロット変更なし」と報告 → 即終了
-- editor が `plot-outline.md` を更新した場合、Read で内容を確認し、上記ガイドラインに違反していないか検証する
+- editor が `plot-outline.md` を更新した場合、Read で内容を確認し、`agents/editor.md` の「プロット更新の管理」ガイドラインに違反していないか検証する
   - 違反がある場合（大筋の変更、4話以上先の大幅変更）→ editor に差し戻し、該当箇所の削除を指示
 - discussion-log.md に記録を追記
 
@@ -773,6 +670,11 @@ progress.md を更新: step7.6 を `[x]`、`current_step: "step7.6"`, `step_stat
 progress.md を更新: `current_step: "step8"`, `step_status: "in_progress"`
 
 全コアチームメイト（editor, author, manager）に `shutdown_request` を送り、全員がシャットダウンしたことを確認してから TeamDelete を実行する。
+
+progress.md を更新: step8 を `[x]`、`current_step: "step8"`, `step_status: "completed"`
+
+1. workspace/ の全ファイルを `archive/episode-{番号:2桁}/` にコピー（progress.md, discussion-log.md を含む）
+2. workspace/ をクリーン（アーカイブ完了後に全ファイルを削除）
 
 ***
 
