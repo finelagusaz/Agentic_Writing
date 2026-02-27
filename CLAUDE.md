@@ -8,7 +8,7 @@
 
 ```
 .claude/skills/          スキル定義
-  setup-story/           作品セットアップ（対話的7ステップ）
+  setup-world/           作品セットアップ（対話的7ステップ）
   edit-story/            資料編集
   write-episode/         エピソード執筆（マルチエージェント）
 .claude/agents/          サブエージェント定義
@@ -18,7 +18,7 @@ agents/                  エージェント役割定義
   manager.md             担当者エージェント
   readers/
     reader-template.md   読者テンプレート
-story/                   作品資料（/setup-story で生成）
+story/                   作品資料（/setup-world で生成）
   premise.md             コンセプト・テーマ
   setting.md             世界観・設定
   characters.md          登場人物
@@ -36,7 +36,7 @@ archive/                 過去のドラフト
 
 ## 利用フロー
 
-1. `/setup-story` — 作品の全設定を対話的に構築
+1. `/setup-world` — 作品の全設定を対話的に構築
 2. `/edit-story` — 資料のレビュー・修正（任意）
 3. `/write-episode N` — 第N話を自動執筆
 

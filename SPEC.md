@@ -3,7 +3,7 @@
 ## 1. 主目的
 
 ### 1.1 主目的
-`/setup-story`・`/edit-story`・`/write-episode` の3コマンドを通じて、Web小説制作の初期設定、継続的な設定更新、エピソード執筆と品質管理を再現可能な手順として提供する。
+`/setup-world`・`/edit-story`・`/write-episode` の3コマンドを通じて、Web小説制作の初期設定、継続的な設定更新、エピソード執筆と品質管理を再現可能な手順として提供する。
 
 ### 1.2 成功条件
 - 作品資料（`story/`）が整合性を維持して生成・更新される。
@@ -28,7 +28,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 ## 3. スコープ
 
 ### 3.1 対象
-- `/setup-story`: 7ステップ対話で `story/` の初期資料を生成
+- `/setup-world`: 7ステップ対話で `story/` の初期資料を生成
 - `/edit-story <自然言語指示>`: 既存資料の更新と波及影響管理
 - `/write-episode <話数> [--max-revisions=N]`: 執筆、評価、改稿ループ、確定保存
 
@@ -42,7 +42,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 ### 4.1 コマンド I/F
 | コマンド | 入力 | 出力 |
 | --- | --- | --- |
-| `/setup-story` | 対話回答（ジャンル・設定・文体等） | `story/*.md`（初期資料） |
+| `/setup-world` | 対話回答（ジャンル・設定・文体等） | `story/*.md`（初期資料） |
 | `/edit-story` | 自然言語変更指示 | 対象 `story/*.md` の更新 |
 | `/write-episode` | 話数、任意で `--max-revisions` | `episodes/*.txt` + `story/` 更新 + `archive/` 保存 |
 
@@ -62,7 +62,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 
 ## 5. 全体の処理の流れ
 
-### 5.1 初期構築フロー（`/setup-story`）
+### 5.1 初期構築フロー（`/setup-world`）
 1. カテゴリ・ジャンル選択
 2. テーマ・コンセプト確定
 3. 世界観設定
@@ -114,7 +114,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 | `workspace/discussion-log.md` | Step 0 初期化、各ディスカッション追記 | 議論記録 |
 | `workspace/progress.md` | Step 0 作成、全ステップで更新 | 再開制御 |
 
-### 6.2 初期資料生成物（`/setup-story`）
+### 6.2 初期資料生成物（`/setup-world`）
 | ファイル | 役割 |
 | --- | --- |
 | `story/premise.md` | コンセプト・テーマ・想定話数 |
@@ -183,7 +183,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 
 ```mermaid
 flowchart TD
-    A["/setup-story<br/>初期資料を作成"] --> B["/edit-story（任意）<br/>設定を更新"]
+    A["/setup-world<br/>初期資料を作成"] --> B["/edit-story（任意）<br/>設定を更新"]
     B --> C["/write-episode N 開始"]
     C --> D["Step 0-2<br/>初期化/方針策定"]
     D --> E["Step 3-5<br/>執筆/レビュー/読者回収"]

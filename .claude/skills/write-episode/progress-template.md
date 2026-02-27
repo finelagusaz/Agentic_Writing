@@ -10,6 +10,10 @@ Step 0 で以下の内容で `workspace/progress.md` を作成する。
 episode: {番号}
 max_revisions: {上限}
 revision_count: 0
+planned_episodes: {想定話数 or null}
+remaining_episodes: {残り話数 or null}
+is_endgame: {true/false/null}
+is_finale: {true/false/null}
 current_step: "step0"
 step_status: "completed"
 ```
@@ -39,6 +43,14 @@ step_status: "completed"
 - [ ] {ペルソナ2のID}
 - [ ] {ペルソナ3のID}
 ...（ペルソナ数に応じて列挙。reader-personas.md の実際のIDを使用すること）
+
+## Endgame Info
+
+- planned_episodes: {想定話数 or null}
+- remaining_episodes: {残り話数 or null}
+- is_endgame: {true/false/null}
+- is_finale: {true/false/null}
+- deferred_overflow: {想定話数超過DEFERREDのリスト or "なし"}
 
 ## Revision History
 

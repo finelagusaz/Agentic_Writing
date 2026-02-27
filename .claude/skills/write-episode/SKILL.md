@@ -71,9 +71,16 @@ Step 8:  チームシャットダウン + workspace アーカイブ
 6. 前話のエピソード（`episodes/`）の存在を確認する。
 7. `revision_count = 0` を初期化する。
 8. `story/handover-notes.md` を読み、`[DEFERRED:ep{今回の番号}]` を `[ACTIVE]` に昇格する（該当なしならスキップ）。
+9. `story/premise.md` を Read し、想定話数を取得する。取得できない場合は `planned_episodes = null` として以降の終盤計算をスキップする（後方互換）。
+10. 終盤変数を計算する:
+    - `remaining_episodes = planned_episodes - episode_number`
+    - `is_endgame = (remaining_episodes <= 2)`
+    - `is_finale = (remaining_episodes == 0)`
+11. DEFERRED帰結先の検証: `story/handover-notes.md` の全 `[DEFERRED:epN]` について N > planned_episodes のものを検出し、`progress.md` の Endgame Info に deferred_overflow として記録する。（planned_episodes が null の場合はスキップ）
+12. 最終話の場合（`is_finale == true`）: `story/handover-notes.md` の全 `[DEFERRED:epN]` を `[ACTIVE]` に強制昇格する。
 
 完了条件:
-- `progress.md`: `current_step: "step0"`, `step_status: "completed"`, `step0` を `[x]`。
+- `progress.md`: `current_step: "step0"`, `step_status: "completed"`, `step0` を `[x]`、YAML ブロックと Endgame Info セクションに終盤変数（planned_episodes / remaining_episodes / is_endgame / is_finale / deferred_overflow）を記録済み。
 
 ---
 
@@ -97,7 +104,7 @@ Step 8:  チームシャットダウン + workspace アーカイブ
    - `## キャラクター登場密度（直近5話）`
    - `## 伏線・要素の進展追跡`
    - `## 表現パターン累積（直近5話）`
-6. 欠落/破損時は setup-story と同じテンプレートで再生成し、ユーザー通知と `discussion-log.md` 追記を行う（未作成時はヘッダー付きで新規作成してから追記）。
+6. 欠落/破損時は setup-world と同じテンプレートで再生成し、ユーザー通知と `discussion-log.md` 追記を行う（未作成時はヘッダー付きで新規作成してから追記）。
 
 完了条件:
 - `progress.md`: `step1` を `[x]`, `current_step: "step1"`, `step_status: "completed"`。
@@ -112,12 +119,14 @@ Step 8:  チームシャットダウン + workspace アーカイブ
    - 目的: 第{番号}話の創作方針策定
    - 参照: `agents/editor.md`、`story/` 主要資料（`series-tracker.md` を最初に読む）、前話エピソード
    - 出力: `workspace/current-direction.md`
+   - 終盤モードの場合（`is_endgame == true`）: 「残り話数: {remaining_episodes}」「最終話: {はい/いいえ}」を指示に含め、agents/editor.md の終盤ガイドラインに従うよう明記する。deferred_overflow がある場合はそれも伝達する。
 3. 完了報告を待ち、出力検証する。
 4. 方針固有の構造検証を行う。
    - 「## アクション配分確認」に直前2話の区分がある。
    - 「## エピソードタイプ・文字数」にA/B/C指定と文字数目安がある。
    - 「## 伏線・布石」に「tracker警告への対応」がある。
    - `story/series-tracker.md` の警告事項と整合する（不足時は editor に再出力依頼）。
+   - 終盤モード時: 「## 終盤情報」セクションが存在し、伏線回収計画が記載されている。
 
 完了条件:
 - `progress.md`: `step2` を `[x]`, `current_step: "step2"`, `step_status: "completed"`。

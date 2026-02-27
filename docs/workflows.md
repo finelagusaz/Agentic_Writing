@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart TD
-    S["/setup-story"] --> E["/edit-story（任意）"]
+    S["/setup-world"] --> E["/edit-story（任意）"]
     E --> W["/write-episode N"]
     W --> J{"判定"}
     J -->|PASS| F["確定保存"]
@@ -15,7 +15,7 @@ flowchart TD
     J -->|FORCE_PASS| F
 ```
 
-## 2. `/setup-story` 詳細
+## 2. `/setup-world` 詳細
 
 ### 2.1 ステップ
 1. Step 1: カテゴリ・ジャンル選択
@@ -120,7 +120,7 @@ stateDiagram-v2
 
 | フェーズ | 追加/更新される主ファイル |
 | --- | --- |
-| `/setup-story` 完了時 | `story/*.md` 一式 |
+| `/setup-world` 完了時 | `story/*.md` 一式 |
 | Step 0 | `workspace/progress.md`, `workspace/revision-log.md`, `workspace/discussion-log.md` |
 | Step 2 | `workspace/current-direction.md` |
 | Step 3 | `workspace/current-draft.txt` |
