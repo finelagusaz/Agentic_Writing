@@ -13,7 +13,8 @@
   └── シナリオアーク（巻単位の形）
         └── キャラクターアーク（シナリオアークと協調）
               └── 各エピソード（アーク上の役割を持つ）
-                    └── handover-notes / series-tracker（アークを強化する材料）
+                    └── handover-notes（アーク進行の記録）
+                    └── series-tracker（表現傾向の監視 ＋ アーク位置との乖離チェック）
 ```
 
 現行システムは積み上げ型（handover-notes → editor判断 → 執筆）だった。次は降ろし型にする。下位の意思決定は常に上位の設計を参照する。
@@ -34,11 +35,26 @@ Claudeがアーク草案を生成し、設計者がそれに注釈を加える�
 
 ## フェーズ構成
 
-### Phase 0：アーク設計（巻に一度）
+```mermaid
+flowchart LR
+    A["/setup-arc\nPhase 0\nアーク設計"] -->|"Step G 承認"| B["Phase 1\nエピソード執筆"]
+    B --> C{幕の境界?}
+    C -->|No| CX{"巻終了?\n(役割マップ最終話)"}
+    CX -->|No| B
+    CX -->|Yes| F
+    C -->|Yes| D["Phase 2\nアーク観測"]
+    D -->|アーク微修正| B
+    D --> E{巻終了?}
+    E -->|No| B
+    E -->|Yes| F["/setup-arc\n次巻"]
+```
+
+### Phase 0：アーク設計（巻に一度） — **【実装済み】**（`/setup-arc`）
 
 エピソード執筆の前に完結する。設計者の承認なしに次フェーズへ進まない。中断・再開に対応するため、進捗を `story/arc-design-progress.md` に逐次記録する。
 
 ```
+Step 0  初期化：中断復帰チェック ＋ 新規/続巻の確認（ファイルパス取得）
 Step A  テーマの言語化（設計者が持ち込む）
 Step B  シナリオアーク草案（Claude生成）+ チェックリスト初期化
 Step C  Claudeが問う → 設計者が答える → Claude更新（チェックが全部付くまで繰り返す）
@@ -46,6 +62,26 @@ Step D  キャラクターアーク草案（Claude生成）+ チェックリス�
 Step E  Claudeが問う → 設計者が答える → Claude更新（チェックが全部付くまで繰り返す）
 Step F  エピソード役割マップ生成
 Step G  設計者承認 → アーク設計ロック → 執筆解禁
+```
+
+```mermaid
+flowchart TD
+    S0["Step 0\n初期化・中断復帰チェック"]
+    SA["Step A\nテーマ言語化（設計者）"]
+    SB["Step B\nシナリオアーク草案生成\nチェックリスト初期化"]
+    SC["Step C\nClaude 問い → 設計者回答 → Claude 更新"]
+    SC_CHECK{"全チェック\n付いた?"}
+    SD["Step D\nキャラクターアーク草案生成\nチェックリスト追加"]
+    SE["Step E\nClaude 問い → 設計者回答 → Claude 更新"]
+    SE_CHECK{"全チェック\n付いた?"}
+    SF["Step F\nエピソード役割マップ生成"]
+    SG["Step G\n設計者承認 → ロック → 執筆解禁"]
+
+    S0 --> SA --> SB --> SC --> SC_CHECK
+    SC_CHECK -->|No| SC
+    SC_CHECK -->|Yes| SD --> SE --> SE_CHECK
+    SE_CHECK -->|No| SE
+    SE_CHECK -->|Yes| SF --> SG
 ```
 
 #### チェックリストの構成
@@ -60,7 +96,7 @@ Step G  設計者承認 → アーク設計ロック → 執筆解禁
 - [ ] 各話の役割タグが割り当てられている（Step F 後）
 
 **Claudeの仮定（可変）** — 草案生成時にClaudeが仮定で埋めた箇所：
-- 草案ごとに内容が変わる。Claudeが「ここを○○と解釈しました。あなたの意図と違いますか」と問い、設計者が答えたらチェックが付く
+- 草案ごとに内容が変わる。Claudeが仮定で埋めた箇所を **3〜5点** 特定し、**5択選択式**（方向性の異なる案を並べ、設計者が選んで答えられる形式）で問う。答えたらチェックが付く
 
 問いは設計者が気づいていない前提の衝突を掘り起こすためにある。設計者は答えるだけでいい。
 
@@ -68,9 +104,9 @@ Step G  設計者承認 → アーク設計ロック → 執筆解禁
 
 `story/arc-design-progress.md` にチェックリストの現在状態を記録する。セッションを跨いでも「どこまで確定したか、残りの問いは何か」から再開できる。
 
-成果物：`story/scenario-arc.md`、`story/character-arcs.md`、各話への役割タグ、`story/arc-design-progress.md`
+成果物：`story/scenario-arc.md`（エピソード役割マップを含む）、`story/character-arcs.md`、`story/arc-design-progress.md`
 
-### Phase 1：エピソード執筆（話ごとに繰り返す）
+### Phase 1：エピソード執筆（話ごとに繰り返す） — **【未実装】**（次の実装対象）
 
 現行の write-episode スキルに相当。ただし設計の起点がアーク設計に変わる。
 
@@ -78,22 +114,53 @@ Step G  設計者承認 → アーク設計ロック → 執筆解禁
 Step 0  初期化
 Step 1  チーム作成
 Step 2  エピソードブリーフ生成（アーク設計から導出）
-Step 3  作者執筆 → 読者バックグラウンドスポーン
+Step 3  作者執筆 → author-reflections.md に一言（驚いたことのみ） → 読者バックグラウンドスポーン（draft を渡す）
 Step 4  アークレビュー（役割準拠の評価）
+         REVISION_NEEDED の場合 → Step 3 に戻る（リビジョン上限まで。上限到達 → FORCE_PASS）
 Step 5  読者フィードバック回収
 Step 6  判定
 Step 7  確定・保存・アーク進行更新
 Step 8  シャットダウン
 ```
 
-### Phase 2：アーク観測（N話ごとに実施）
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant D as Designer
+    participant A as Author (Opus)
+    participant V as Arc-Reviewer
+    participant R as Readers × N
 
-執筆しながら生まれる創発を、シリーズレベルで検出・反映する。
+    O->>O: episode-brief.md 生成<br>（scenario-arc + character-arcs）
+    O->>D: 迷い 2〜3 点を問う（optional）
+    D-->>O: 回答
+    O->>A: episode-brief.md 渡す
+    A->>O: current-draft.txt
+    A-->>A: author-reflections.md に一言残す（驚いたことのみ）
+    O-)R: bg スポーン（draft + reader-memory 渡す）
+    O->>V: draft + episode-brief
+    V->>O: 役割準拠レビュー
+    loop REVISION_NEEDED（リビジョン上限まで）
+        O->>A: 改稿指示
+        A->>O: revised draft
+        A-->>A: author-reflections.md 更新（上書き）
+        O->>V: revised draft + episode-brief
+        V->>O: 役割準拠レビュー
+    end
+    R--)O: フィードバック（reader-memory 更新）
+    O->>O: 判定（PASS / FORCE_PASS） → 確定 → アーク進行更新
+```
+
+### Phase 2：アーク観測（幕の境界で実施） — **【未実装】**
+
+執筆しながら生まれる創発を、シリーズレベルで検出・反映する。`story/scenario-arc.md` の三幕構成から境界話数を取得し、その話の確定後に自動スポーン（第二部の三幕構成なら7話後・16話後の2回など、幕数に応じて実施回数が変わる）。
 
 ```
 Step 1  アークオブザーバーが全確定エピソードを通読
-Step 2  設計アークと実際の展開のずれを報告
-Step 3  設計者と協議 → シナリオアーク・キャラクターアークの微修正（許容範囲内）
+Step 2  story/author-reflections.md を通読し、執筆行為の中で蓄積された意図を抽出する
+Step 3  設計アークと実際の展開のずれを報告
+Step 4  設計者と協議 → シナリオアーク・キャラクターアークの微修正（許容範囲内）
+Step 5  handover-notes.md のアーク進行状況を更新後のアーク設計と照合・差分を修正する
 ```
 
 大筋の変更（テーマ・感情頂点の移動）は設計者判断が必要。細部の調整（合流ポイントの話数移動など）はPhase 2で対応できる。
@@ -102,7 +169,7 @@ Step 3  設計者と協議 → シナリオアーク・キャラクターアー�
 
 ## ドキュメント設計
 
-### 新設：`story/arc-design-progress.md`
+### 新設：`story/arc-design-progress.md` — **【実装済み】**
 
 Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版。
 
@@ -110,7 +177,7 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 ## Phase 0 進捗（第N巻）
 
 ### 現在のStep
-（Step A〜G のどこにいるか）
+（Step 0〜G のどこにいるか）
 
 ### チェックリスト
 
@@ -125,9 +192,9 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 - [ ] 〇〇について：私は△△と解釈しました。確認待ち
 ```
 
-全項目にチェックが付き、設計者が Step G で承認したら Phase 0 完了。このファイルをアーカイブし、`story/scenario-arc.md` ・`story/character-arcs.md` を確定版として扱う。
+全項目にチェックが付き、設計者が Step G で承認したら Phase 0 完了。このファイルを `archive/phase0/` にアーカイブし、`story/scenario-arc.md` ・`story/character-arcs.md` を確定版として扱う。
 
-### 新設：`story/scenario-arc.md`
+### 新設：`story/scenario-arc.md` — **【実装済み】**
 
 ```markdown
 ## 巻の感情命題
@@ -154,7 +221,7 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 
 役割タグ：**頂点 / 助走 / 余韻 / 転換 / 蓄積**
 
-### 新設：`story/character-arcs.md`
+### 新設：`story/character-arcs.md` — **【実装済み】**
 
 ```markdown
 ## [キャラクター名]
@@ -175,7 +242,7 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 改稿圧力に対する根拠として機能する。
 ```
 
-### 変更：`story/handover-notes.md`
+### 変更：`story/handover-notes.md` — **【未実装】**
 
 **現行**：未解決項目のリスト（処理圧力を生む）
 **変更後**：アーク進行の記録（判断基準を与える）
@@ -192,11 +259,10 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 - [NEXT-VOL]：次巻送り可。引きとして残してよい
 - [AMBIENT]：雰囲気・奥行きのために存在。明示的な回収不要
 
-## 次話の役割タグ
-（scenario-arc.md のエピソード役割マップから転記）
 ```
+（オーケストレーターは scenario-arc.md のエピソード役割マップを直接参照するため、転記不要）
 
-### 新設：`story/reader-memory-{ペルソナID}.md`
+### 新設：`story/reader-memory-{ペルソナID}.md` — **【未実装】**（上限管理のみ YAGNI 保留）
 
 ```markdown
 ## 印象の蓄積
@@ -210,7 +276,9 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 （自分の読み方の傾向を自覚的に記録）
 ```
 
-### 新設：`story/author-reflections.md`
+> **原則3 との整合**: 上限管理を実装する際、トリアージ基準はアーク設計（役割タグ・感情頂点）から導出する。単純な行数上限ではなく、「今後のアークに関連する印象のみ保持する」方針を取る。
+
+### 新設：`story/author-reflections.md` — **【未実装】**
 
 作者エージェントが各エピソード確定後に残す声。記録ではなく印象。
 
@@ -220,11 +288,11 @@ Phase 0 の中断復帰用ファイル。`workspace/progress.md` の Phase 0 版
 （驚いたことだけ書く。予定通りだったことは書かない。）
 ```
 
-**重要な原則**：実行エージェント（作者・アークレビュアー）は**書くが読まない**。コンテキスト汚染を防ぐため、過去の記録を各話の実行コンテキストに持ち込まない。Arc Observer が Phase 2 でまとめて読み、意図を蒸留してアーク設計に反映する。
+**重要な原則**：**作者は書くが読まない**（アークレビュアーは読まない）。コンテキスト汚染を防ぐため、過去の記録を各話の実行コンテキストに持ち込まない。Arc Observer が Phase 2 でまとめて読み、意図を蒸留してアーク設計に反映する。
 
 整理しない。構造化しない。「思考の過程」は渡せないが、「やりたかったこと」は残せる。
 
-### 新設：`workspace/episode-brief.md`
+### 新設：`workspace/episode-brief.md` — **【未実装】**
 
 current-direction.md に相当するが、生成の起点がアーク設計になる。
 
@@ -249,7 +317,7 @@ current-direction.md に相当するが、生成の起点がアーク設計に�
 
 ## エージェント構成
 
-### 編集エージェント：廃止
+### 編集エージェント：廃止 — **【未実装・決定済み】**
 
 現行の編集エージェントは「何を書くか」の創作判断を持つ。その判断はアーク設計に移った。
 
@@ -261,27 +329,29 @@ current-direction.md に相当するが、生成の起点がアーク設計に�
 - per-episodeのOpusエージェントが1つ減る（コスト・レイテンシの削減）
 - エージェント間通信が単純化する（orchestrator → author → arc-reviewer）
 - 「編集エージェントが方針を策定し、作者エージェントがそれに従う」という権力構造がなくなり、orchestratorが直接briefを持つ
+- **方針ディスカッション段階**（現行 Step 4）が不要になる（編集エージェントが方針の当事者のため）
+- **ドラフトディスカッション段階**（現行 Step 7）は維持するが、議題が「役割タグの解釈」に限定され簡素化される見込み
 
-### 作者エージェント：変更最小
+### 作者エージェント：変更最小 — **【未実装】**
 
 「どう書くか」は依然として専用コンテキストの価値がある。変更点は入力の質で、current-direction.md に代えて episode-brief.md を読む。episode-brief には「書かないことリスト」が含まれる。
 
-### 担当者エージェント：評価軸を変える
+### 担当者エージェント：評価軸を変える — **【未実装】**（実装時の識別名：`arc-reviewer`。現行の `manager` からリネーム）
 
 **現行**：このエピソードは良いか（絶対評価）
 **変更後**：このエピソードは役割タグを果たしたか（役割評価）
 
 評価の問いを変える。余韻の話なら「前話の感情が沈殿できたか」。頂点の話なら「一つの主題に集中できたか」。役割タグが評価基準を決めるため、モデル非対称の影響も減る（評価基準が設計文書に書いてある事実になるため）。
 
-### 読者エージェント：記憶を持つ
+### 読者エージェント：記憶を持つ — **【未実装】**（上限管理のみ YAGNI 保留）
 
 毎話、`story/reader-memory-{ペルソナID}.md` を読んでから評価し、読了後に更新する。評価の問いが変わる：「今回の話は、これまで読んできた流れの中でどう感じたか」。
 
 担当者が役割準拠を評価し、読者が蓄積的な読書体験を報告する。機能が重ならなくなる。
 
-### アークオブザーバー：新設
+### アークオブザーバー：新設 — **【未実装】**
 
-Phase 2 で起動する周期的エージェント（N話ごとに一度）。
+Phase 2 で起動する周期的エージェント（幕の境界で実施）。
 
 - 全確定エピソードを通読
 - `story/author-reflections.md` を通読し、執筆行為の中で蓄積された意図を抽出する
@@ -302,8 +372,39 @@ Phase 1（毎話）:
   arc-reviewer      → 役割準拠評価
   readers × N（記憶あり） → バックグラウンド、reader-memory更新
 
-Phase 2（N話ごと）:
+Phase 2（幕の境界）:
   arc-observer      → シリーズ通読・author-reflections通読・アーク観測レポート
+```
+
+```mermaid
+flowchart TB
+    subgraph P0["Phase 0（巻に一度）"]
+        direction LR
+        OC0[Orchestrator] <-->|設計対話| DS[Designer]
+    end
+
+    subgraph P1["Phase 1（話ごと）"]
+        direction TB
+        OC1[Orchestrator] -->|episode-brief| AU["Author (Opus)"]
+        AU -->|draft| OC1
+        AU -.->|一言| REFL["author-reflections.md"]
+        OC1 -->|"draft + brief"| RV["Arc-Reviewer"]
+        RV -->|役割準拠評価| OC1
+        OC1 -.->|bg spawn| RA[Reader A]
+        OC1 -.->|bg spawn| RB[Reader B]
+        OC1 -.->|bg spawn| RC[Reader C]
+        RA & RB & RC -.->|feedback| OC1
+    end
+
+    subgraph P2["Phase 2（幕の境界）"]
+        direction LR
+        AO["Arc-Observer"] -->|観測レポート| DS2[Designer]
+        DS2 -->|微修正| ARC["scenario-arc.md\ncharacter-arcs.md"]
+    end
+
+    P0 -->|アーク確定| P1
+    P1 -->|幕境界到達| P2
+    P2 -->|アーク更新| P1
 ```
 
 ---
@@ -333,6 +434,8 @@ episode-brief を生成した後、Claudeは自分が仮定で埋めた箇所を
 
 設計者が答えたら episode-brief を確定し、執筆へ進む。**アーク設計が十分に詳細で迷いがない場合は省略する**（問いを無理に作らない）。
 
+**制約**: 問いは「アーク設計の解釈」に限定する（例：「この役割タグをどう具体化するか」）。アーク設計自体の変更を要する問い（例：「このキャラクターの進行を前倒しすべきか」）が浮上した場合、episode-brief には仮の判断で進め、`story/handover-notes.md` に `[DESIGN-REVIEW]` タグ付きスレッドとして記録する。次回の Phase 2（または設計者の任意の `/edit-story`）で正式にアーク設計を修正する。
+
 目的：迷いを抱えたまま書くと設計にも感情にも振り切れない。問いに答えてもらうことで、Claudeが一方向に集中できる状態を作る。
 
 ### Step 4：アークレビュー（旧：担当者レビュー）
@@ -350,12 +453,15 @@ episode-brief を生成した後、Claudeは自分が仮定で埋めた箇所を
 確定時の更新対象に追加：
 - `story/character-arcs.md` の現在ステージ更新
 - `story/handover-notes.md` のアーク進行状況更新
-- 該当話がN話の倍数なら arc-observer をスポーン
-- 作者エージェントが `story/author-reflections.md` に一言残す（**驚いたことのみ**。予定通りだったことは書かない）
+- `story/handover-notes.md` のスレッド更新（新規スレッドの追加、既存スレッドのタグ再評価）。オーケストレーターが担当する
+- `story/series-tracker.md` の更新（配分・密度の実績値を反映。アーク位置との乖離があれば記録）
+- 該当話が幕の境界（scenario-arc.md の三幕構成から取得）に当たるなら arc-observer をスポーン
+
+（author-reflections への記録は Step 3 で実施済み。確定時ではなく執筆直後が正しいタイミング）
 
 ---
 
-## writing-guide.md への追加
+## writing-guide.md への追加 — **【一部実装済み】**（地の文/セリフ分離は完了。per-character 制約は未実装）
 
 現行の writing-guide.md は地の文の制御に精密だが、台詞の制約がほぼない。台詞が「地の文で書けなかった情報の受け皿」になると後半でキャラクターの声が均質化する（第20話のミレーヌ「既知の四分類」問題）。
 
@@ -379,20 +485,22 @@ episode-brief を生成した後、Claudeは自分が仮定で埋めた箇所を
 - `writing-guide.md` の地の文制御の精度（これが現行システムの好機を生んだ）
 - AI癖制御ルール（台詞スタイルルールを追加する形で拡張）
 - 読者バックグラウンドスポーン（記憶ありに変えるが並列実行は維持）
+- `series-tracker.md`（保持。アクション配分・表現パターン・登場密度の管理を維持し、「アーク位置との乖離チェック」を追加する）
+- モデル非対称性への対策ルール（書面先行・判定不変の原則）は `arc-reviewer` が Sonnet モデルである限り継続適用する
 
 ---
 
-## 未解決の問い
+## 決定事項
 
-設計を確定させる前に判断が必要な点：
+当初「未解決」だった問いへの答え（2026-02-28 セッションで確定）：
 
-1. **編集エージェントを残すか廃止するか**（案A vs 案B）。アーク設計の質次第で決まる。アーク設計が十分に詳細なら廃止できる。
+1. **編集エージェントを残すか廃止するか** → **廃止する**。アーク設計がオーケストレーターにエピソードブリーフ生成の根拠を与えるため、創作判断を持つ編集エージェントは不要。
 
-2. **アーク観測の頻度**。5話ごとか、幕の切れ目か。頻繁すぎると創発を急ぎすぎる。少なすぎると軌道修正が遅れる。
+2. **アーク観測の頻度** → **幕の境界のみ**。`story/scenario-arc.md` の三幕構成から境界話数を取得し、その話の確定後に自動スポーン（第二部の三幕構成なら7話後・16話後の2回など）。
 
-3. **reader-memory の上限管理**。連載が長くなると reader-memory が肥大化する。要約・圧縮の仕組みが必要になる。
+3. **reader-memory の上限管理** → **YAGNI 保留**。現行のまま。実行して問題が出たら対処する。
 
-4. ~~**Phase 0 のアノテーションサイクルの実装**~~ → `/setup-arc` スキルとして新設。`/setup-world`（旧 `/setup-story`）と分離した三段構成に決定 ✓
+4. **Phase 0 のアノテーションサイクルの実装** → ✅ `/setup-arc` スキルとして実装済み。`/setup-world` と分離した三段構成に確定。
 
 ---
 
