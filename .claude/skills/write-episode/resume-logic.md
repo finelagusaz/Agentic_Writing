@@ -12,28 +12,26 @@
       - `current_step` と `step_status` から再開地点を決定:
         - `step_status` が `completed` → 次のステップから再開
         - `step_status` が `in_progress` → そのステップを再実行（Step 5 は部分完了を考慮）
-      - ディスカッションステップ（step2d, step4d）は状態が非永続。中断時はディスカッション全体を再実行
+      - ディスカッションステップ（step4d）は状態が非永続。中断時はディスカッション全体を再実行
       - 再開前に、再開先ステップの前提ファイルが存在・有効か Glob + Read で検証する。欠落時はユーザーに警告し新規開始にフォールバック
-      - `revision_count` を progress.md の値で復元
+      - `revision_count` と `force_pass` を progress.md の値で復元
    b. **episode が引数と異なる場合 → 警告モード**
       - ユーザーに確認: 「workspace に第{M}話の進捗が残っています。第{N}話を開始すると失われます。続行しますか？」
-      - 承認 → 通常の新規開始（Step 0 へ）/ 拒否 → 中断
+      - 承認 → 通常の新規開始（Step 0 へ） / 拒否 → 中断
 4. **progress.md の形式が不正な場合**: ユーザーに警告し、新規開始にフォールバック
 
 ## 前提ファイル一覧（再開時の検証用）
 
 | 再開先 | 必須ファイル |
 |-------|------------|
-| Step 2 | （なし） |
-| Step 2D | `current-direction.md` |
-| Step 3 | `current-direction.md`。revision_count > 0 の場合は `consolidated-feedback.md` も |
-| Step 4 | `current-direction.md`, `current-draft.txt` |
-| Step 4D | `current-direction.md`, `current-draft.txt`, `manager-review.md` |
-| Step 5 | `current-draft.txt` |
-| Step 6 | `manager-review.md`, `reader-feedback-*.md`（全読者分） |
-| Step 6.5P | `current-draft.txt` |
-| Step 6.5D | Step 6 と同じ + `current-direction.md`, `current-draft.txt` |
-| Step 7 | `current-draft.txt`, `current-direction.md` |
-| Step 7.5 | `episodes/{番号:2桁}_{タイトル}.txt`（Step 7 で保存済み）, `workspace/manager-review.md`, `workspace/reader-feedback-*.md` |
-| Step 7.6 | `story/plot-outline.md`, `story/handover-notes.md`, `story/episode-summaries.md` |
+| Step 2 | `story/scenario-arc.md`, `story/character-arcs.md` |
+| Step 2Q | `workspace/episode-brief.md` |
+| Step 3 | `workspace/episode-brief.md`。revision_count > 0 の場合は `workspace/arc-review.md` も |
+| Step 4 | `workspace/episode-brief.md`, `workspace/current-draft.txt` |
+| Step 4D | `workspace/episode-brief.md`, `workspace/current-draft.txt`, `workspace/arc-review.md` |
+| Step 5 | `workspace/current-draft.txt` |
+| Step 6 | `workspace/arc-review.md`, `workspace/reader-feedback-*.md`（全読者分） |
+| Step 6.5P | `workspace/current-draft.txt` |
+| Step 7 | `workspace/current-draft.txt`, `workspace/episode-brief.md` |
+| Step 7.5 | `episodes/{番号:2桁}_{タイトル}.txt`（Step 7 で保存済み） |
 | Step 8 | （なし — チームシャットダウンのみ） |

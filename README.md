@@ -42,7 +42,7 @@ Agentic Writingは、**編集者・作者・担当者・読者**の4つの役割
 
 ```bash
 # 1. 作品のセットアップ（対話形式の7ステップで世界観やプロットを構築）
-/setup-story
+/setup-world
 
 # 2. エピソードの執筆（執筆→レビュー→改稿が全自動で進行）
 /write-episode 1
@@ -93,7 +93,7 @@ Agentic_Writing/
 ├── CLAUDE.md                 # システム設定
 ├── .claude/skills/           # スキル定義 (setup, edit, write)
 ├── agents/                   # エージェント役割定義 (editor, author, manager, readers)
-├── story/                    # 作品資料（/setup-story で自動生成されます）
+├── story/                    # 作品資料（/setup-world で自動生成されます）
 │   ├── premise.md            # コンセプト・テーマ
 │   ├── setting.md            # 世界観・設定
 │   ├── characters.md         # 登場人物
@@ -112,7 +112,7 @@ Agentic_Writing/
 
 | コマンド | 説明 |
 |----------|------|
-| `/setup-story` | 7ステップの対話形式（ジャンル→テーマ→世界観→キャラ→プロット→文体→読者ペルソナ）で作品を初期構築 |
+| `/setup-world` | 7ステップの対話形式（ジャンル→テーマ→世界観→キャラ→プロット→文体→読者ペルソナ）で作品を初期構築 |
 | `/edit-story` | 自然言語で作品設定を修正。「〇〇の設定を変えたい」と伝えるだけで、整合性を保って資料を更新 |
 | `/write-episode N` | 第N話を自動執筆。内部でエージェントによるレビュー・フィードバック・リビジョンが実行される |
 
