@@ -15,6 +15,7 @@ description: 巻のシナリオアーク・キャラクターアークを設計�
 
 - `story/premise.md`、`story/characters.md` が存在すること（`/setup-world` で生成）
 - `story/plot-outline.md` があることが望ましい（なくても実行可）
+- インポートフローでは `/setup-world`（インポートモード）の Phase 2 として自動的に実行される（Step 0 はスキップされる）
 
 ## 中断復帰
 
@@ -34,7 +35,7 @@ description: 巻のシナリオアーク・キャラクターアークを設計�
 - **存在する（LOCKED）** → 「アーク設計はすでに完了しています。改版しますか？」と確認。改版する場合は既存ファイルをバックアップしてから ② へ
 - **存在しない** → ② へ
 
-**② 新規 / 続巻の確認**
+**② 新規 / 続巻 / インポート継続の確認**
 
 設計者に問う：
 
@@ -42,6 +43,7 @@ description: 巻のシナリオアーク・キャラクターアークを設計�
 第何巻のアーク設計ですか？
   A. 第1巻（新規シリーズ）
   B. 続巻（第2巻以降）
+  C. インポート継続（/setup-world のインポートモードから Phase 2 として実行中）
 ```
 
 **A. 新規の場合**
@@ -68,6 +70,12 @@ description: 巻のシナリオアーク・キャラクターアークを設計�
 ファイルが手元にない場合は、前巻のエピソードと handover-notes.md を
 もとに手動で作成するか、/edit-story で作成できます。
 ```
+
+**C. インポート継続の場合**
+`/setup-world`（インポートモード）の Phase 2 として実行されているため、Step 0 ② の選択をスキップして Step A へ進む。前巻アークファイルの代わりに Phase 1 で生成した以下を参照する：
+- `story/episode-summaries.md`（アーク要約）— 前巻の流れとして参照
+- `story/handover-notes.md`（引き継ぎスレッド）
+- `story/characters.md`（現在の状態）— 発展済みキャラクターとして参照
 
 ---
 
@@ -204,8 +212,22 @@ Step C と同様の手順でキャラクターアークに対して問いを立�
 ```
 
 設計者が承認したら：
-- `story/arc-design-progress.md` に「LOCKED」を記録
-- 「`/write-episode 1` で執筆を開始できます」と通知
+
+1. `story/arc-design-progress.md` に「LOCKED」を記録する
+2. `archive/phase0/` が存在しない場合は自動作成する
+3. `story/arc-design-progress.md` を `archive/phase0/arc-design-progress.md` としてコピーする（Phase 0 の設計セッション記録を保存する）
+4. `story/scenario-arc.md` と `story/character-arcs.md` を確定版として扱う（`archive/phase0/` へのコピーは不要）
+5. 以下を通知する：
+
+```
+Phase 0 完了。アーク設計がロックされました。
+
+  - story/scenario-arc.md … 確定
+  - story/character-arcs.md … 確定
+  - arc-design-progress.md … archive/phase0/ にアーカイブ済み
+
+/write-episode 1 で執筆を開始できます。
+```
 
 ---
 
