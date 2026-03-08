@@ -15,7 +15,11 @@
    - `第\d+話` パターンが1行目（タイトル行）以外に存在しないか確認
    - パターン検出時: 該当箇所をユーザーに警告表示し、**自動的に FORCE_PASS** として扱う（アークレビュアー判定に関わらず）。revision-log.md に「メタナラティブ表現の自動検出」を記録する
 
-1. **FORCE_PASS チェック**: `progress.md` の YAML ブロックに `force_pass: true` が記録されている場合 → **FORCE_PASS**（Step 7へ、警告付き）
+1. **FORCE_PASS チェック**: `progress.md` の YAML ブロックに `force_pass: true` が記録されている場合 → **FORCE_PASS 候補**。以下のユーザー確認を経て確定する:
+   - arc-review.md の主要指摘を要約してユーザーに表示する
+   - 「リビジョン上限に達しました。このまま FORCE_PASS で確定しますか？ それとも追加の改稿指示がありますか？」と確認する
+   - **承認** → FORCE_PASS として Step 7 へ
+   - **追加指示あり** → ユーザーの指示を arc-review.md の指摘に追記し、`revision_count` を `max_revisions - 1` にリセットして Step 3 に戻る（追加1回のみ許可）
 
 2. `workspace/arc-review.md` を Read し、最終判定（OK / REVISION_NEEDED / MAJOR_REVISION）を確認する。
    - ここで REVISION_NEEDED が残っている場合（再開フローなどで稀に発生）→ **FORCE_PASS**

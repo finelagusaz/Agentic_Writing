@@ -135,6 +135,7 @@ Step 8:  チームシャットダウン
    - 現在ステージと次トリガー（前話の `character-arcs.md` が更新済みであれば反映済みのはず）
    - 意図的に未解決を保つ期間（解決してはいけない要素）
 4. `story/handover-notes.md` を Read し、スレッドをトリアージする:
+   - `progress.md` の `handover_legacy_format` が `true` の場合（旧形式）: 各未解決項目を `[MUST-VOL]` として仮分類する。Step 2Q で設計者に分類の確認を求める（この場合 Step 2Q は省略しない）
    - `[MUST-THIS]`: 今話で扱う（episode-brief に明示）
    - `[MUST-VOL]` 以下: 参考として記録するに留め、今話で処理しない
 5. 前話エピソード（`episodes/`）が存在する場合は Read し、直前の文脈を把握する。
