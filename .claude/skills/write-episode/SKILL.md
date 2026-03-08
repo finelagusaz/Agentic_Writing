@@ -244,7 +244,8 @@ Step 8:  チームシャットダウン
 2. `story/reader-personas.md` から各ペルソナを取得し、`team_name` なし・`run_in_background: true` で並列 Task スポーンする。
 3. 各読者 prompt:
    - `workspace/current-draft.txt` を読み、`agents/readers/reader-template.md` に従って `workspace/reader-feedback-{ペルソナID}.md` に出力する。
-   - 設定整合性担当ペルソナには `story/setting.md`, `story/characters.md`, `story/episode-summaries.md`, `story/handover-notes.md`, `workspace/episode-brief.md` も参照させる。
+   - **全読者共通**で `story/episode-summaries.md`（既読の蓄積）と `story/scenario-arc.md` のエピソード役割マップ（今話の位置把握）も参照させる。
+   - 設定整合性担当ペルソナにはさらに `story/setting.md`, `story/characters.md`, `story/handover-notes.md`, `workspace/episode-brief.md` も参照させる。
 4. `progress.md` の「Step 5 Detail」を全ペルソナ `[ ]` で初期化し、各読者 Task ID を記録する。
 
 ---
@@ -346,7 +347,13 @@ Step 8:  チームシャットダウン
 
 実行:
 1. `progress.md` を `step7 in_progress` に更新する。
-2. `.claude/skills/write-episode/finalization-details.md` を Read し、「確定・保存」と「アーク進行更新」に従って実行する。
+2. **ユーザー確認**: 確定前にユーザーに以下を提示して承認を得る:
+   - 判定結果（PASS / PASS_WITH_POLISH / FORCE_PASS）
+   - 最終ドラフトのタイトル（1行目）
+   - リビジョン回数と読者平均★
+   - 「`episodes/` に保存してよろしいですか？ ドラフトを確認したい場合はお知らせください。」
+   - ユーザーが確認を希望した場合は `workspace/current-draft.txt` の内容を提示し、承認後に進む
+3. `.claude/skills/write-episode/finalization-details.md` を Read し、「確定・保存」と「アーク進行更新」に従って実行する。
 
 ---
 
