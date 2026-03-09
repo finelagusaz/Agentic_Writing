@@ -142,8 +142,11 @@ Step 8:  チームシャットダウン
    - `progress.md` の `handover_legacy_format` が `true` の場合（旧形式）: 各未解決項目を `[MUST-VOL]` として仮分類する。Step 2Q で設計者に分類の確認を求める（この場合 Step 2Q は省略しない）
    - `[MUST-THIS]`: 今話で扱う（episode-brief に明示）
    - `[MUST-VOL]` 以下: 参考として記録するに留め、今話で処理しない
-5. 前話エピソード（`episodes/`）が存在する場合は Read し、直前の文脈を把握する。
-6. `workspace/episode-brief.md` を作成する:
+5. `story/plot-outline.md` を Read し、今話のプロット骨格を確認する:
+   - 今話で予定されているイベント・登場キャラクター
+   - **series-tracker の警告（キャラクター登場密度・伏線未進展）と plot-outline の計画が矛盾する場合は、plot-outline を優先する**。series-tracker の警告は「計画的な不在」を区別できないため、plot-outline で後の話に配置されたイベントを前倒しで消費してはならない
+6. 前話エピソード（`episodes/`）が存在する場合は Read し、直前の文脈を把握する。
+7. `workspace/episode-brief.md` を作成する:
 
 ```markdown
 ## アーク上の位置
