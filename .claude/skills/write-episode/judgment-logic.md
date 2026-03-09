@@ -13,7 +13,7 @@
 
 0. **自動スキャン**: `workspace/current-draft.txt` に対し以下の Grep チェックを行う:
    - `第\d+話` パターンが1行目（タイトル行）以外に存在しないか確認
-   - パターン検出時: 該当箇所をユーザーに警告表示し、**自動的に FORCE_PASS** として扱う（アークレビュアー判定に関わらず）。revision-log.md に「メタナラティブ表現の自動検出」を記録する
+   - パターン検出時: 該当箇所をユーザーに警告表示し、**自動的に REVISION_NEEDED** として扱う（アークレビュアー判定に関わらず）。revision-log.md に「メタナラティブ表現の自動検出」を記録する。ただし `revision_count >= max_revisions` の場合は FORCE_PASS に昇格する
 
 1. **FORCE_PASS チェック**: `progress.md` の YAML ブロックに `force_pass: true` が記録されている場合 → **FORCE_PASS**（Step 7へ、警告付き）
 

@@ -18,6 +18,10 @@ disable-model-invocation: true
 - `$ARGUMENTS`: `episode_number`（必須）
 - `--max-revisions=N`（任意、デフォルト `3`）
 
+## 動作環境の注意
+
+`TeamCreate` / `SendMessage` / `TeamDelete` が利用できない環境（Windows など）では、チームメンバーのスポーンに `Agent` ツールを使用し、メッセージ交換の代わりに各エージェントへの直接プロンプトで代替する。ディスカッションステップは省略しても構わない（discussion-log.md に「チーム機能非対応環境のため省略」と記録する）。チームシャットダウン（Step 8）は TeamDelete をスキップしてチェックボックスのみ更新する。
+
 ## 最初に行うこと（必須）
 
 実行開始時の**最初のアクション**として、`.claude/skills/write-episode/resume-logic.md` を Read し、再開チェック手順を適用する。
@@ -361,10 +365,10 @@ Step 8:  チームシャットダウン
 
 実行:
 1. `progress.md` を `step8 in_progress` に更新する。
-2. コアメンバー（author, arc-reviewer）へ `shutdown_request` を送る。
-3. 全員のシャットダウン確認後に TeamDelete を実行する。
-4. `progress.md` を `step8 completed` に更新する。
-5. `workspace/` の全ファイル（`progress.md`, `discussion-log.md` を含む）を `archive/episode-{番号:2桁}/` にコピーする。
+2. コアメンバー（author, arc-reviewer）へ `shutdown_request` を送る（チーム機能非対応環境ではスキップ）。
+3. 全員のシャットダウン確認後に TeamDelete を実行する（チーム機能非対応環境ではスキップ）。
+4. `progress.md` を `step8 completed` に更新する（**チーム機能の有無にかかわらず必ず実行すること**）。
+5. `workspace/` の全ファイル（`progress.md`, `discussion-log.md` を含む）を `archive/episode-{番号:2桁}/` にコピーする（progress.md に完了状態が記録されてからコピーすること）。
 6. アーカイブ完了後に `workspace/` をクリーンアップする。
 
 ---
