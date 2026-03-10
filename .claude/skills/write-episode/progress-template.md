@@ -10,6 +10,11 @@ Step 0 で以下の内容で `workspace/progress.md` を作成する。
 episode: {番号}
 max_revisions: {上限}
 revision_count: 0
+planned_episodes: {想定話数 or null}
+remaining_episodes: {残り話数 or null}
+is_finale: {true/false/null}
+arc_phase_boundary: {true/false（幕境界の場合は "true: 第N幕"）}
+force_pass: false
 current_step: "step0"
 step_status: "completed"
 ```
@@ -18,18 +23,16 @@ step_status: "completed"
 
 - [x] step0: Initialize
 - [ ] step1: Create Team + Spawn Core
-- [ ] step2: Editor Direction
-- [ ] step2d: Direction Discussion
+- [ ] step2: Episode Brief Generation
+- [ ] step2q: Designer Query (optional)
 - [ ] step3: Author Draft
-- [ ] step4: Manager Review
+- [ ] step4: Arc Review
 - [ ] step4d: Draft Discussion
 - [ ] step5: Reader Feedback (Collect)
 - [ ] step6: Judgment
 - [ ] step6.5p: Polish (conditional)
-- [ ] step6.5d: Revision Discussion (conditional)
-- [ ] step7: Finalize
-- [ ] step7.5: Handover Notes Update
-- [ ] step7.6: Plot Update Discussion
+- [ ] step7: Finalize + Arc Progress Update
+- [ ] step7.5: Quality Log
 - [ ] step8: Team Shutdown
 
 ## Step 5 Detail
