@@ -1,6 +1,6 @@
 ---
 name: write-episode
-description: マルチエージェント（author + arc-reviewer + reader群）によるWeb小説エピソード自動執筆スキル。アーク設計を起点にエピソードブリーフを生成し、執筆・改稿・品質判定・確定保存・アーク進行更新までをオーケストレーションする。引数は episode_number、任意で --max-revisions=N。
+description: Web小説のエピソードを自動執筆するスキル。作者・アークレビュアー・読者エージェントによるマルチエージェント協調で、執筆・レビュー・改稿・品質判定・確定保存までを一貫実行する。Use when user says "第N話を書いて", "次の話を執筆", "write episode", "続きを書いて", or specifies an episode number for writing. Do NOT use for story setup (/setup-world), arc design (/setup-arc), or story editing (/edit-story).
 argument-hint: "<episode_number> [--max-revisions=N]"
 disable-model-invocation: true
 ---

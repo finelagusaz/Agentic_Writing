@@ -1,6 +1,6 @@
 ---
 name: edit-story
-description: story/ の資料を自然言語指示で編集する。波及影響を分析し関連ファイルの更新も提案する。
+description: Web小説の作品資料（story/）を自然言語指示で編集する。変更の波及影響を分析し、関連ファイルの整合性更新も提案する。Use when user says "設定を変えたい", "キャラを修正", "プロットを直して", "edit story", "writing-guide を更新", or wants to modify any story/ file. Do NOT use for episode writing (/write-episode), initial setup (/setup-world), or arc design (/setup-arc).
 ---
 
 # /edit-story — 資料編集スキル
