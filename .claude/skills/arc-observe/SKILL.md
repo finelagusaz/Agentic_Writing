@@ -1,6 +1,6 @@
 ---
 name: arc-observe
-description: 幕の境界で起動するアーク観測スキル（Phase 2）。全確定エピソードと author-reflections を通読し、設計アークと実際の展開のずれを検出・報告する。細部の修正を自律的に実施し、大筋の修正は設計者の承認を経て実施する。
+description: 幕の境界で全確定エピソードを通読し、設計アークと実際の展開のずれを検出・修正するアーク観測スキル。細部は自律修正、大筋は設計者の承認を経て修正する。Use when user says "アーク観測", "arc observe", "アークのずれを確認", or at act boundaries when prompted by /write-episode completion. Do NOT use for episode writing (/write-episode) or arc design (/setup-arc).
 ---
 
 # /arc-observe — アーク観測スキル（Phase 2）
