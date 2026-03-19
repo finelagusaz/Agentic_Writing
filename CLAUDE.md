@@ -28,6 +28,7 @@ story/                   作品資料（/setup-world / /setup-arc で生成）
   scenario-arc.md        シナリオアーク（/setup-arc で生成）
   character-arcs.md      キャラクターアーク（/setup-arc で生成）
   reader-personas.md     読者ペルソナ定義
+  author-reflections.md  作者の気づき（話ごとの一言メモ）
   episode-summaries.md   各話あらすじ
   series-tracker.md      横断追跡（配分・登場密度・伏線進展・表現傾向・乖離チェック）
   handover-notes.md      アーク進行状況・申し送りスレッド
@@ -98,7 +99,7 @@ archive/                 過去のドラフト
 6. **ドラフトディスカッション（Step 4D）**: REVISION_NEEDED の場合→ Step 4 へループ（改稿）
 7. **読者フィードバック回収**: バックグラウンドの読者結果を回収
 8. **判定（Step 6）**: PASS / PASS_WITH_POLISH / FORCE_PASS
-9. **確定・保存（Step 7）**: episodes/ に保存、アーク進行更新（character-arcs / handover-notes / series-tracker）
+9. **確定・保存（Step 7）**: episodes/ に保存、アーク進行更新（character-arcs / handover-notes / series-tracker）、プロット消費監査（plot-outline との乖離検出）
 10. **品質ログ（Step 7.5）**: quality-log.md に記録
 11. **チームシャットダウン**
 
@@ -107,3 +108,10 @@ archive/                 過去のドラフト
 - 実行中の進捗は `workspace/progress.md` に逐次記録される
 - セッション中断後に同じ `/write-episode N` を実行すると、自動的に中断地点から再開する
 - 手動で `workspace/progress.md` を削除すると強制的に新規開始できる
+
+## Gotchas
+
+- **author スポーン失敗**: opus モデルの author がスポーン時に応答しないことがある。idle 通知後にドラフトが未出力の場合はリスポーンする。スポーン時のプロンプトに執筆指示を直接含めると成功率が上がる
+- **複数 author の上書き競合**: リスポーン時に旧 author が生き残っていると、後から出力して `current-draft.txt` を上書きする場合がある。リスポーン後は旧 author にシャットダウンリクエストを送ること
+- **FORCE_PASS のユーザー確認**: リビジョン上限到達時、FORCE_PASS は自動確定せずユーザーに確認を求める。ユーザーが追加指示を出した場合は revision_count をリセットして1回追加改稿を許可する
+- **読者は team_name なし**: 読者エージェントは `run_in_background: true` のサブエージェントとして独立スポーンする。チームには所属しないため TeamDelete 前にシャットダウンが必要
