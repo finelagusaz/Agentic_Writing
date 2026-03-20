@@ -92,15 +92,12 @@ Step 8:  チームシャットダウン
 
 実行:
 1. TeamCreate で `novel-ep{番号}` チームを作成する。
-2. コア2名を `team_name` 指定ありで並列 Task スポーンする。
+2. **コアメンバーは Step 1 ではスポーンしない**。各メンバーは使用するステップで遅延スポーンする（指示をプロンプトに直接含める方式。空スポーン＋SendMessage 方式は応答率が低いため廃止）。
 
-| チームメイト | subagent_type | name | model |
-|---|---|---|---|
-| 作者 | novel-author | author | opus |
-| アークレビュアー | novel-arc-reviewer | arc-reviewer | sonnet |
-
-3. 各メンバーの prompt:
-   - 「あなたは第{番号}話の執筆チームの{役割}です。agents/{ファイル}.md を読み込み、チームリーダーからの指示を待ってください。」
+| チームメイト | subagent_type | name | model | スポーンタイミング |
+|---|---|---|---|---|
+| 作者 | novel-author | author | opus | **Step 3**（執筆指示をプロンプトに直接含める） |
+| アークレビュアー | novel-arc-reviewer | arc-reviewer | sonnet | **Step 4**（レビュー指示をプロンプトに直接含める） |
 4. `story/reader-personas.md` を Read し、全ペルソナ（ID・名前・subagent_type）を取得する。
 5. `story/series-tracker.md` の存在と必須見出しを検証する。
    - `## アクション配分（直近3話）`
@@ -178,6 +175,14 @@ Step 8:  チームシャットダウン
 
 （handover-notes.md の [MUST-THIS] スレッド。該当なしの場合は「なし」）
 
+## 反パターン制約（実装重複回避）
+
+（`story/series-tracker.md` の「シーン構造パターン」テーブルから直近3話の主要シーン構造・冒頭の入り方・食事場面を取得し、重複する実装パターンを明示的に禁止する）
+
+- やってはいけない主構造：（直近3話で繰り返された構造。例:「移動中の歩行シーンを主構造にしない」）
+- やってはいけない冒頭：（直前話と同じ入り方。例:「前話の場面の延長から始めない」）
+- 回避すべき要素：（直近で過剰な要素。例:「食事場面を含めない」）
+
 ## 蓮の選択場面（必須）
 
 - 蓮がこの話で下す判断/決断：（アーク設計と今話の焦点から具体的に設計する）
@@ -200,6 +205,7 @@ Step 8:  チームシャットダウン
 - **テンポプロファイル選定**: `story/series-tracker.md` の「テンポプロファイル履歴」から直前2話のプロファイルを取得し、それと異なるプロファイルを選定する。`story/writing-guide.md` のテンポ強度カーブ（§7.5）で今話の役割タグとの親和性を参照して最終決定する。
 - **蓮の選択場面設計（必須）**: `story/scenario-arc.md` と `story/character-arcs.md` から今話の焦点を踏まえ、蓮が下す「判断」または「決断」を具体的に設計する。`story/series-tracker.md` の「主人公の能動性追跡」で直近の選択パターンを確認し、同じ型の繰り返しを避ける。「選ばなかった選択肢」も必ず設計する。
 - **引きの型選定**: `story/series-tracker.md` の「テンポプロファイル履歴」から直前2話の引きの型を取得し、それと異なる型を `story/writing-guide.md` の引きの4類型から選定する。
+- **反パターン制約生成（必須）**: `story/series-tracker.md` の「シーン構造パターン」テーブルから直近3話の主要シーン構造・冒頭の入り方・食事場面を取得し、重複する実装パターンを episode-brief の「反パターン制約」セクションに明示的な禁止事項として記載する。テーブルが存在しない場合（第1話等）はこのセクションを省略する。
 - 履歴データが存在しない場合（第1話）は「執筆のアクセント」セクションを省略する（`accent_note_applicable: false` を `progress.md` に記録）。ただし「蓮の選択場面」セクションは episode-brief 本体に必ず含める。
 
 アクセントが決定したら episode-brief.md の末尾に以下のセクションを追記する:
@@ -250,13 +256,12 @@ Step 8:  チームシャットダウン
 
 実行:
 1. `progress.md` を `step3 in_progress` に更新する。
-2. author に SendMessage する。
-   - 初稿（`revision_count == 0`）:
-     - `agents/author.md` に従い、`workspace/episode-brief.md`（最優先）と `story/` 主要資料・前話を参照する。
-     - `workspace/current-draft.txt` に本文のみ出力する。
-   - 改稿（`revision_count > 0`）:
-     - `workspace/episode-brief.md` と `workspace/arc-review.md` を参照して改稿する。
-     - `workspace/current-draft.txt` を上書きし、本文のみ出力する。
+2. **author をスポーン（または再スポーン）する**。`team_name: novel-ep{番号}`, `name: author`, `subagent_type: novel-author`, `model: opus` で Agent スポーンし、**プロンプトに執筆指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す。opus モデルの応答率改善のため）。
+   - 初稿（`revision_count == 0`）のプロンプト:
+     - 「あなたは第{番号}話の作者です。`agents/author.md` を読み込み、`workspace/episode-brief.md`（最優先）と `story/` 主要資料・前話を参照して、`workspace/current-draft.txt` に本文のみ出力してください。」に加え、episode-brief の要点（役割タグ、テンポプロファイル、構成パターン、感覚レンズ、蓮の選択場面、引きの型）をプロンプト本文に転記する。
+   - 改稿（`revision_count > 0`）のプロンプト:
+     - 「あなたは第{番号}話の作者です。`agents/author.md` を読み込み、`workspace/episode-brief.md` と `workspace/arc-review.md` を参照して改稿し、`workspace/current-draft.txt` を上書きしてください。」に加え、arc-review の指摘事項要約をプロンプトに転記する。
+   - **改稿時の旧 author 処理**: 改稿で再スポーンする場合、旧 author がまだ存在する可能性がある。旧 author に `shutdown_request` を送ってからスポーンし、上書き競合を防ぐ（CLAUDE.md Gotchas 参照）。
 3. 完了報告を待ち、出力検証する。
 4. author に `story/author-reflections.md` への記録を指示する:
    - 今話を書いて**驚いたこと**を一言だけ記録する（予定通りだったことは書かない）。
@@ -289,11 +294,9 @@ Step 8:  チームシャットダウン
 
 実行:
 1. `progress.md` を `step4 in_progress` に更新する。
-2. arc-reviewer に SendMessage する。
-   - `agents/arc-reviewer.md` に従い、`workspace/episode-brief.md` と `workspace/current-draft.txt` を参照する。
-   - `story/character-arcs.md` も参照して意図的未解決期間の確認を行う。
-   - 現在のリビジョン回数 `{revision_count}/{max_revisions}` を明示する。
-   - `workspace/arc-review.md` に出力する。
+2. **arc-reviewer をスポーンする**。`team_name: novel-ep{番号}`, `name: arc-reviewer`, `subagent_type: novel-arc-reviewer`, `model: sonnet` で Agent スポーンし、**プロンプトにレビュー指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す）。
+   - プロンプト: 「あなたは第{番号}話のアークレビュアーです。`agents/arc-reviewer.md` を読み込み、`workspace/episode-brief.md`（評価基準の起点）と `workspace/current-draft.txt`（評価対象）を参照してレビューしてください。`story/character-arcs.md` で意図的未解決期間を確認し、`story/writing-guide.md` と `story/characters.md` も参照してください。リビジョン回数: {revision_count}/{max_revisions}。`workspace/arc-review.md` に出力してください。」
+   - **改稿ループでの再レビュー時**: 旧 arc-reviewer に `shutdown_request` を送ってから再スポーンする。
 3. 完了報告を待ち、出力検証する。
 
 完了条件:
