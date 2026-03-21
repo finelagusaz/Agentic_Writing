@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | grep -q 'rm.*workspace/' && [ -f workspace/progress.md ]; then echo 'BLOCK: workspace/ に執筆中の progress.md があります。削除は /write-episode 完了後に行ってください'; exit 2; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(git:*)",
+      "WebSearch"
+    ]
+  }
+}
