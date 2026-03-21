@@ -85,7 +85,7 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 |-----|------|
 | **頂点** | 幕の感情的クライマックス。一つの主題に集中 |
 | **助走** | 次の頂点に向けて緊張を高める |
-| **余韻** | 頂点の感情を沈殿させる。未解決項目の処理禁止 |
+| **余韻** | 頂点の感情を沈殿させる。新イベント消費・伏線回収・アーク進行は禁止。ただし既存感情の別角度照射、キャラ間の微細な関係変化、主人公の個の時間は積極的に描く。前話群と異なる実装構造で描くこと |
 | **転換** | 物語の方向を変える。新情報は一つだけ |
 | **蓄積** | 世界観・関係性を積み上げる |
 
@@ -131,7 +131,7 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 | Step | 名称 | 主担当 | 主な出力 |
 | --- | --- | --- | --- |
 | 0 | 初期化 | Orchestrator | `progress.md`, `revision-log.md`, `discussion-log.md` |
-| 1 | チーム作成 + コアスポーン | Orchestrator | 実行環境、必要時 `series-tracker.md` 復旧 |
+| 1 | チーム作成（コアメンバーは遅延スポーン） | Orchestrator | 実行環境、必要時 `series-tracker.md` 復旧 |
 | 2 | エピソードブリーフ生成 | Orchestrator | `episode-brief.md`（アーク設計から導出・執筆アクセント・plot-outline 参照含む） |
 | 2Q | 設計者への問い（任意） | Orchestrator | `discussion-log.md` 追記 |
 | 3 | 作者（執筆/改稿） | author | `current-draft.txt`, `author-reflections.md`, `accent-note.md`（変更時のみ） |
@@ -152,14 +152,18 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 - **Step 7(a)-(e)**: 確定後のサブステップ:
   - (a) character-arcs.md 現在ステージ更新
   - (b) handover-notes.md アーク進行状況更新
-  - (c) series-tracker.md 更新（構成パターン履歴・感覚レンズ履歴・アーク乖離チェック含む）
+  - (c) series-tracker.md 更新（構成パターン履歴・感覚レンズ履歴・テンポプロファイル履歴・能動性追跡・シーン構造パターン・半透明パターン・アーク乖離チェック含む）
   - (d) プロット消費監査（Layer 3）— 乖離時は `[PLOT-DRIFT]` で記録
   - (e) アーク観測の通知（幕境界の場合のみ）
 
-### 5.4 Step 2 の執筆アクセント
+### 5.4 Step 2 の執筆アクセントと品質保証
 `series-tracker.md` の直近5話履歴から以下を `episode-brief.md` に追記（**示唆。変更可**）:
-- **構成パターン推奨**: 6型（単線・並走・交差・回想・圧縮・余白）から重複回避して推奨
+- **構成パターン推奨**: 10型（冒頭クライマックス・日常崩壊・静謐一貫・謎解き・時間跳躍・会話劇・並走・対比・積層・単線）から重複回避して推奨
 - **感覚レンズ推奨**: 4分類（視覚・聴覚・触覚・嗅覚味覚）から重複回避して推奨
+- **テンポプロファイル**: 6種（圧縮・展開・加速・衝撃・減速・波動）から直前2話と重複回避して選定
+- **蓮の選択場面（必須）**: 判断 or 決断を設計。選ばなかった選択肢も明示
+- **引きの型**: 4類型（明示的謎・不安の種・感情の残響・選択の予感）から直前2話と重複回避
+- **反パターン制約（必須）**: `series-tracker.md` のシーン構造パターンテーブルから直近3話の実装構造を取得し、重複する主構造・冒頭・食事場面等を明示的に禁止
 
 変更した場合は `workspace/accent-note.md` を生成 → Step 7 で `series-tracker.md` の変更メモ列に転記後削除。
 
@@ -174,7 +178,7 @@ arc-reviewer（Sonnet）が author（Opus）に議論で言い負かされるリ
 
 ```mermaid
 flowchart TD
-    A["Step 3-5 完了"] --> S0["自動スキャン<br/>メタナラティブ検出"]
+    A["Step 3-5 完了"] --> S0["自動スキャン<br/>メタナラティブ検出<br/>（話数+巻構造）"]
     S0 --> C{"force_pass?"}
     C -->|Yes| FP["FORCE_PASS"]
     C -->|No| D{"arc-reviewer = OK?"}
@@ -244,7 +248,7 @@ stateDiagram-v2
 
     AskConfirm --> FreshStart: 続行
     AskConfirm --> Abort: 中断
-    ResumeSameEpisode --> Step1TeamRecreate: Step1は必ず再実行
+    ResumeSameEpisode --> Step1TeamRecreate: Step1は必ず再実行（チーム作成のみ。コアメンバーは各Step遅延スポーン）
     Step1TeamRecreate --> ResumeAtCurrent: current_step/step_statusで再開
     ResumeAtCurrent --> [*]
     FreshStart --> [*]
