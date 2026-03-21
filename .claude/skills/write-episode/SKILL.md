@@ -408,10 +408,11 @@ Step 8:  チームシャットダウン
 実行:
 1. `progress.md` を `step8 in_progress` に更新する。
 2. コアメンバー（author, arc-reviewer）へ `shutdown_request` を送る（チーム機能非対応環境ではスキップ）。
-3. 全員のシャットダウン確認後に TeamDelete を実行する（チーム機能非対応環境ではスキップ）。
-4. `progress.md` を `step8 completed` に更新する（**チーム機能の有無にかかわらず必ず実行すること**）。
-5. `workspace/` の全ファイル（`progress.md`, `discussion-log.md` を含む）を `archive/episode-{番号:2桁}/` にコピーする（progress.md に完了状態が記録されてからコピーすること）。
-6. アーカイブ完了後に `workspace/` をクリーンアップする。
+3. **読者エージェントの終了**: `progress.md` の「Step 5 Detail」に記録された全読者ペルソナに対し、`SendMessage` で `shutdown_request` を送る。読者はバックグラウンドスポーンだが、チームに所属しているため明示的なシャットダウンが必要（tmux セッション内で idle 状態のまま残留するため）。読者が既に終了している場合は送信エラーを無視する。
+4. 全員のシャットダウン確認後に TeamDelete を実行する（チーム機能非対応環境ではスキップ）。
+5. `progress.md` を `step8 completed` に更新する（**チーム機能の有無にかかわらず必ず実行すること**）。
+6. `workspace/` の全ファイル（`progress.md`, `discussion-log.md` を含む）を `archive/episode-{番号:2桁}/` にコピーする（progress.md に完了状態が記録されてからコピーすること）。
+7. アーカイブ完了後に `workspace/` をクリーンアップする。
 
 ---
 
