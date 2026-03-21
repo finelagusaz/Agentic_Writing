@@ -48,6 +48,7 @@ Step 6:  判定 → PASS / PASS_WITH_POLISH / FORCE_PASS
  └ 6.5P: ポリッシュ（PASS_WITH_POLISH時のみ）→ Step 7へ
 Step 7:  確定・保存・アーク進行更新
  └ 7.5: 品質ログ記録
+ └ 7.6: エピソードレトロ（KPT → 設計者にTryを提案）
 Step 8:  チームシャットダウン
 ```
 
@@ -148,6 +149,7 @@ Step 8:  チームシャットダウン
 4. `story/handover-notes.md` を Read し、スレッドをトリアージする:
    - `progress.md` の `handover_legacy_format` が `true` の場合（旧形式）: 各未解決項目を `[MUST-VOL]` として仮分類する。Step 2Q で設計者に分類の確認を求める（この場合 Step 2Q は省略しない）
    - `[MUST-THIS]`: 今話で扱う（episode-brief に明示）
+   - `[TRY-NEXT]`: 前話のエピソードレトロで承認された改善提案。episode-brief の該当セクション（反パターン制約、蓮の選択場面、アクセント等）に反映する。反映後、タグを `[RESOLVED]` に変更する
    - `[MUST-VOL]` 以下: 参考として記録するに留め、今話で処理しない
 5. `story/plot-outline.md` を Read し、今話のプロット骨格を確認する:
    - 今話で予定されているイベント・登場キャラクター
@@ -419,6 +421,39 @@ Step 8:  チームシャットダウン
 実行:
 1. `progress.md` を `step7.5 in_progress` に更新する。
 2. `finalization-details.md` の「Step 7.5: 品質ログ記録」に従い、`story/quality-log.md` を更新する。
+
+---
+
+### Step 7.6: エピソードレトロ
+
+実行:
+1. `progress.md` を `step7.6 in_progress` に更新する。
+2. 以下のデータソースを収集する:
+   - `workspace/arc-review.md` の判定・補足
+   - `workspace/reader-feedback-*.md` の各ペルソナの指摘（archive 前に読む）
+   - `story/author-reflections.md` の今話の記録
+   - `story/series-tracker.md` の「現在の警告」
+3. KPT を自動生成し、設計者に提示する:
+
+```
+### エピソードレトロ — 第{番号}話
+
+**Keep**（今話で機能した要素）
+- （arc-review の補足、読者の高評価ポイント、author の驚きから抽出）
+
+**Problem**（今話の課題）
+- （読者の共通指摘、series-tracker の警告、handover の未解決項目のうち関連するもの）
+
+**Try**（次話で試すこと — 最大1件）
+- （Keep/Problem から導かれる具体的な改善提案。1件に絞る）
+```
+
+4. 設計者に **Try** の承認を求める:
+   - **承認** → `story/handover-notes.md` に `[TRY-NEXT]` タグでスレッドを追加する。次話の Step 2 で episode-brief に反映する
+   - **却下** → 記録のみ（`discussion-log.md` に「Try 却下: {理由}」を追記）
+   - **修正** → 設計者の修正版を `[TRY-NEXT]` として追加
+   - **Try なし**（改善提案が不要な場合）→ スキップ
+5. `progress.md` を更新: step7.6 を `[x]`、`current_step: "step7.6"`, `step_status: "completed"`
 
 ---
 

@@ -33,6 +33,7 @@ step_status: "completed"
 - [ ] step6.5p: Polish (conditional)
 - [ ] step7: Finalize + Arc Progress Update
 - [ ] step7.5: Quality Log
+- [ ] step7.6: Episode Retro (KPT)
 - [ ] step8: Team Shutdown
 
 ## Step 5 Detail
