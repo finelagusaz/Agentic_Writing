@@ -12,12 +12,11 @@
   edit-story/            資料編集
   write-episode/         エピソード執筆（マルチエージェント）
   story-status/          作品進捗ダッシュボード
-.claude/agents/          サブエージェント定義
-agents/                  エージェント役割定義
+.claude/agents/          サブエージェント定義（登録層: tools 制限・model・permissionMode のみ。実体は agents/ を参照）
+agents/                  エージェント役割定義（役割定義層: 実行時に Read で読み込まれる正本。二層構造は意図的）
   author.md              作者エージェント（/write-episode）
   arc-reviewer.md        アークレビュアー（/write-episode）
-  editor.md              編集エージェント（/edit-story のみ）
-  manager.md             担当者エージェント（旧版・参照用）
+  arc-observer.md        アークオブザーバー（/arc-observe）
   readers/
     reader-template.md   読者テンプレート
 story/                   作品資料（/setup-world / /setup-arc で生成）
@@ -64,7 +63,7 @@ archive/                 過去のドラフト
 | 読者×N | ペルソナベースのフィードバック（reader-memory で読書体験を蓄積） | sonnet | `/write-episode` 初稿時（改稿発生時は Step 5 で最終稿による再評価） |
 | アークオブザーバー (arc-observer) | 全エピソード通読・アーク乖離検出・修正提案 | — | `/arc-observe`（幕境界） |
 
-> **編集 (editor)** は `/edit-story` スキルでのみ使用。`/write-episode` では廃止済み。
+> **編集 (editor)・担当者 (manager)** は第一部時代の旧構成。現行のどのスキルからも参照されておらず、役割定義は `archive/legacy-agents/` に保存済み。`/edit-story` はオーケストレーターが直接実行する（専用エージェントなし）。
 
 ### モデル非対称性への対策
 
