@@ -29,6 +29,7 @@ story/                   作品資料（/setup-world / /setup-arc で生成）
   reader-personas.md     読者ペルソナ定義
   reader-memory-*.md     読者の蓄積記憶（印象・期待・評価傾向。読者自身が話ごとに更新）
   author-reflections.md  作者の気づき（話ごとの一言メモ）
+  orchestrator-reflections.md  指揮の所感（オーケストレーターが毎話残す。author・読者には非開示）
   episode-summaries.md   各話あらすじ
   series-tracker.md      横断追跡（配分・登場密度・伏線進展・表現傾向・乖離チェック）
   handover-notes.md      アーク進行状況・申し送りスレッド
@@ -120,6 +121,6 @@ archive/                 過去のドラフト
 - **エージェント空スポーン問題（対策済み）**: 「指示待ち」で空スポーン → SendMessage で指示送信、という2段階方式ではメッセージが拾われないことがある（author/arc-reviewer 両方で発生）。**対策: 全コアメンバーのスポーンを使用ステップに遅延し、スポーン時プロンプトに指示を直接含める**。Step 1 ではチーム作成のみ。author は Step 3、arc-reviewer は Step 4 でスポーンする
 - **複数 author の上書き競合**: リスポーン時に旧 author が生き残っていると、後から出力して `current-draft.txt` を上書きする場合がある。リスポーン後は旧 author にシャットダウンリクエストを送ること
 - **FORCE_PASS のユーザー確認**: リビジョン上限到達時、FORCE_PASS は自動確定せずユーザーに確認を求める。ユーザーが追加指示を出した場合は revision_count をリセットして1回追加改稿を許可する
-- **読者エージェントの滞留問題（対策済み）**: 読者は `run_in_background: true` でスポーンされるが、チームに所属するため idle 状態のまま tmux セッション内に残留する。**対策: Step 8 で読者全員にも `shutdown_request` を明示的に送信する**。送信エラー（既に終了済み）は無視する
+- **読者エージェントの滞留問題（対策済み）**: 読者は `run_in_background: true` でスポーンされるが、idle 状態のまま残留する。**対策: Step 8 で読者全員にも `shutdown_request` を明示的に送信する**。送信エラー（既に終了済み）は無視する。**`shutdown_request` 後も idle 通知を返して残留する場合は `TaskStop`（エージェント名指定）で確実に終了させる**（第三部1話で確認された挙動）
 - **質感マーカー（`〈質感〉`タグ）**: `story/plot-outline.md` の一部のエピソード記述に `〈質感〉` タグで演出指示が付与されている。これは第二部のテーマ（選択）の言葉で書かれた演出指示であり、オーケストレーターが episode-brief 生成時に参照する。author には第三部の設計意図を開示しない（情報の非対称性を意図的に維持）
 - **第三部構想**: `story/plot-outline.md` に第三部（構想）セクションが存在する。贈与を設計原理とした全体構造。第二部執筆時のオーケストレーターは参照できるが、author には開示しない

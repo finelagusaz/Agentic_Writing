@@ -221,6 +221,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 | `story/series-tracker.md` | Step 7(c) | 横断指標・構成パターン履歴・感覚レンズ履歴・テンポプロファイル履歴（牽引レベル実績: 計画→実装）・アーク乖離チェック更新 |
 | `story/plot-outline.md` | Step 7(d)（乖離時） | プロット消費監査で乖離検出時のみ記録 |
 | `story/reader-memory-{ペルソナID}.md` | Step 5（各読者が自身で更新） | 読者の蓄積記憶（印象の蓄積・期待・予感・評価傾向メモ） |
+| `story/orchestrator-reflections.md` | Step 7.6（オーケストレーターが追記） | 指揮の所感（書面に残らない驚き・機構の手触り。author・読者には非開示） |
 | `story/quality-log.md` | Step 7.5 | 品質記録 |
 | `archive/episode-{番号:2桁}/` | Step 8 | 監査・再検証用保存（`workspace/` 退避） |
 | `archive/arc-observe-vol{N}-act{N}/` | `/arc-observe` Step 5 | アーク観測レポート保存 |

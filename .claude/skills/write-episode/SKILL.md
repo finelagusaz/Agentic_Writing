@@ -471,7 +471,8 @@ Step 8:  チームシャットダウン
    - **却下** → 記録のみ（`discussion-log.md` に「Try 却下: {理由}」を追記）
    - **修正** → 設計者の修正版を `[TRY-NEXT]` として追加
    - **Try なし**（改善提案が不要な場合）→ スキップ
-5. `progress.md` を更新: step7.6 を `[x]`、`current_step: "step7.6"`, `step_status: "completed"`
+5. **指揮の所感**: オーケストレーター（あなた自身）が `story/orchestrator-reflections.md` の末尾に `## 第N部・第N話` 見出しで数行追記する。書くのは書面に残らないもの——驚き・機構の挙動の手触り・判断の裏の迷い。予定通りだったことは書かない（驚きがなければスキップ可）。このファイルは author・arc-reviewer・読者には参照させない（情報アクセスマトリクス参照）
+6. `progress.md` を更新: step7.6 を `[x]`、`current_step: "step7.6"`, `step_status: "completed"`
 
 ---
 

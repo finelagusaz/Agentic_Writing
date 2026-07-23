@@ -279,7 +279,7 @@ stateDiagram-v2
 | Step 6.5P | （発動時のみ）`workspace/current-draft.txt` を軽微修正で上書き |
 | Step 7(d) | （乖離時のみ）`story/handover-notes.md` に `[PLOT-DRIFT]` 追記 |
 | Step 7.5 | `story/quality-log.md` |
-| Step 7.6 | （Try 承認時のみ）`story/handover-notes.md` に `[TRY-NEXT]` 追記（アーク粒度は `[DESIGN-REVIEW]`） |
+| Step 7.6 | （Try 承認時のみ）`story/handover-notes.md` に `[TRY-NEXT]` 追記（アーク粒度は `[DESIGN-REVIEW]`）, `story/orchestrator-reflections.md` に指揮の所感を追記 |
 | Step 8 | `archive/episode-{番号:2桁}/` へ `workspace/` 退避後クリーン |
 | `/arc-observe` Step 5 | `story/scenario-arc.md`（変更時）, `story/character-arcs.md`（変更時）, `story/handover-notes.md`, `archive/arc-observe-vol{N}-act{N}/` |
 
@@ -294,6 +294,7 @@ stateDiagram-v2
 | `scenario-arc.md` | ○ | **×**（ブリーフ経由で降ろす） | ×（ブリーフ経由） | 役割マップのみ○ | ○ |
 | `character-arcs.md` | ○ | × | ○未解決期間確認 | × | ○ |
 | `author-reflections.md` | ○レトロ時 | **書くのみ**（過去分は読まない） | × | × | ○意図の蒸留 |
+| `orchestrator-reflections.md` | **◎書く**（毎話レトロ後）・○次セッションで読む | **×** | × | × | ○指揮の声の蒸留 |
 | `reader-memory-{ID}.md` | ×執筆判断に使わない | × | × | **本人のみ**読み書き | ○軌跡の観測 |
 | `arc-review.md` | ○判定 | ○改稿指針 | ◎生成 | × | ○ |
 | `reader-feedback-*.md` | ○判定・レトロ | ×（ポリッシュ時に指摘要約のみ受領） | × | 自分の出力のみ | ○ |
