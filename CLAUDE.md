@@ -16,7 +16,6 @@
 agents/                  エージェント役割定義（役割定義層: 実行時に Read で読み込まれる正本。二層構造は意図的）
   author.md              作者エージェント（/write-episode）
   arc-reviewer.md        アークレビュアー（/write-episode）
-  arc-observer.md        アークオブザーバー（/arc-observe）
   readers/
     reader-template.md   読者テンプレート
 story/                   作品資料（/setup-world / /setup-arc で生成）
@@ -56,12 +55,14 @@ archive/                 過去のドラフト
 
 ## エージェント構成
 
-| エージェント | 役割 | モデル | 起動タイミング |
-|------------|------|-------|-------------|
-| 作者 (author) | エピソード本文の執筆・改稿 | opus | `/write-episode` 毎話 |
-| アークレビュアー (arc-reviewer) | 役割タグ準拠評価・改稿判定 | sonnet | `/write-episode` 毎話 |
-| 読者×N | ペルソナベースのフィードバック（reader-memory で読書体験を蓄積） | sonnet | `/write-episode` 初稿時（改稿発生時は Step 5 で最終稿による再評価） |
-| アークオブザーバー (arc-observer) | 全エピソード通読・アーク乖離検出・修正提案 | — | `/arc-observe`（幕境界） |
+| エージェント | 役割 | 起動タイミング |
+|------------|------|-------------|
+| 作者 (author) | エピソード本文の執筆・改稿 | `/write-episode` 毎話 |
+| アークレビュアー (arc-reviewer) | 役割タグ準拠評価・改稿判定 | `/write-episode` 毎話 |
+| 読者×N | ペルソナベースのフィードバック（reader-memory で読書体験を蓄積） | `/write-episode` 初稿時（改稿発生時は Step 5 で最終稿による再評価） |
+| アークオブザーバー (arc-observer) | 全エピソード通読・アーク乖離検出・修正提案 | `/arc-observe`（幕境界）※サブエージェントではなくオーケストレーターが直接実行 |
+
+> 各エージェントのモデル・ツール制限・権限モードの正本は `.claude/agents/*.md` のフロントマター（登録層）。
 
 > **編集 (editor)・担当者 (manager)** は第一部時代の旧構成。現行のどのスキルからも参照されておらず、役割定義は `archive/legacy-agents/` に保存済み。`/edit-story` はオーケストレーターが直接実行する（専用エージェントなし）。
 

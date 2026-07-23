@@ -1,7 +1,7 @@
 ---
 name: novel-author
 description: >
-  Web小説の作者。編集の方針に従いエピソード本文を執筆・改稿する。
+  Web小説の作者。エピソードブリーフに従いエピソード本文を執筆・改稿する。
   初稿執筆および改稿のタスクに使用。
 tools: Read, Write, Glob
 model: opus

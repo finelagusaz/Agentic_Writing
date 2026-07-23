@@ -17,12 +17,14 @@
 ### 2.1 システム概要
 Agentic Writing は、複数エージェントの役割分担により小説執筆を進行するオーケストレーション仕様である。
 
-| エージェント | 役割 | モデル | 起動タイミング |
-|------------|------|-------|-------------|
-| `author`（作者） | 本文執筆・改稿 | Opus | Phase 1 毎話 |
-| `arc-reviewer`（アークレビュアー） | 役割タグ準拠評価・台詞スタイル検査・改稿判定 | Sonnet | Phase 1 毎話 |
-| `reader-*`（読者 × N） | ペルソナ別感想・評価（`story/reader-memory-{ID}.md` で読書体験を蓄積） | Sonnet | Phase 1 毎話（bg。改稿発生時は Step 5 で最終稿による再評価） |
-| `arc-observer`（アークオブザーバー） | 全エピソード通読・乖離検出・設計修正 | — | Phase 2（幕の境界） |
+| エージェント | 役割 | 起動タイミング |
+|------------|------|-------------|
+| `author`（作者） | 本文執筆・改稿 | Phase 1 毎話 |
+| `arc-reviewer`（アークレビュアー） | 役割タグ準拠評価・台詞スタイル検査・改稿判定 | Phase 1 毎話 |
+| `reader-*`（読者 × N） | ペルソナ別感想・評価（`story/reader-memory-{ID}.md` で読書体験を蓄積） | Phase 1 毎話（bg。改稿発生時は Step 5 で最終稿による再評価） |
+| `arc-observer`（アークオブザーバー） | 全エピソード通読・乖離検出・設計修正 | Phase 2（幕の境界。サブエージェントではなくオーケストレーターがスキルとして直接実行） |
+
+> モデル・ツール制限・権限モードの正本は `.claude/agents/*.md` のフロントマター（登録層）。
 
 > **編集エージェント（editor）は廃止済み**。エピソードブリーフ生成はオーケストレーターが直接担当する。
 
@@ -44,6 +46,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 |---|---|---|
 | 実行手順・判定条件・**全ての数値閾値** | `.claude/skills/*`（write-episode / judgment-logic / finalization / resume / setup-arc / arc-observe） | 機構の存在と名前のみ記し、詳細は正本を参照 |
 | エージェントの役割・入力・評価軸・行動規範 | `agents/*.md` | 一覧表は名前＋一行まで |
+| エージェントの**モデル・ツール制限・権限モード** | `.claude/agents/*.md` フロントマター（登録層） | 表にモデル列を設けない。スキルはスポーン時に `model` を上書きしない |
 | 役割タグ・牽引レベルの定義 | `.claude/skills/setup-arc/SKILL.md` Step F | `scenario-arc.md` への転記は「巻のインスタンス」であり重複と見なさない |
 | 文体・台詞・引き・AI癖制御の規範 | `story/writing-guide.md`（口調は `characters.md` 最優先） | — |
 | 巻の設計 / 実行状態 / 歴史 | `story/scenario-arc.md` 等 / `workspace/progress.md` / `archive/`（追記のみ） | — |

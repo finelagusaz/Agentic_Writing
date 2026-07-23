@@ -95,10 +95,12 @@ Step 8:  チームシャットダウン
 1. TeamCreate で `novel-ep{番号}` チームを作成する。
 2. **コアメンバーは Step 1 ではスポーンしない**。各メンバーは使用するステップで遅延スポーンする（指示をプロンプトに直接含める方式。空スポーン＋SendMessage 方式は応答率が低いため廃止）。
 
-| チームメイト | subagent_type | name | model | スポーンタイミング |
-|---|---|---|---|---|
-| 作者 | novel-author | author | opus | **Step 3**（執筆指示をプロンプトに直接含める） |
-| アークレビュアー | novel-arc-reviewer | arc-reviewer | sonnet | **Step 4**（レビュー指示をプロンプトに直接含める） |
+| チームメイト | subagent_type | name | スポーンタイミング |
+|---|---|---|---|
+| 作者 | novel-author | author | **Step 3**（執筆指示をプロンプトに直接含める） |
+| アークレビュアー | novel-arc-reviewer | arc-reviewer | **Step 4**（レビュー指示をプロンプトに直接含める） |
+
+> モデル・ツール制限・権限モードの正本は `.claude/agents/*.md` のフロントマター（登録層）。スポーン時に `model` を指定して上書きしない。
 4. `story/reader-personas.md` を Read し、全ペルソナ（ID・名前・subagent_type）を取得する。
 5. `story/series-tracker.md` の存在と必須見出しを検証する。
    - `## アクション配分（直近3話）`
@@ -286,7 +288,7 @@ Step 8:  チームシャットダウン
 
 実行:
 1. `progress.md` を `step3 in_progress` に更新する。
-2. **author をスポーン（または再スポーン）する**。`team_name: novel-ep{番号}`, `name: author`, `subagent_type: novel-author`, `model: opus` で Agent スポーンし、**プロンプトに執筆指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す。opus モデルの応答率改善のため）。
+2. **author をスポーン（または再スポーン）する**。`team_name: novel-ep{番号}`, `name: author`, `subagent_type: novel-author` で Agent スポーンし（モデルは登録層の指定に委ねる）、**プロンプトに執筆指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す。応答率改善のため）。
    - 初稿（`revision_count == 0`）のプロンプト:
      - 「あなたは第{番号}話の作者です。`agents/author.md` を読み込み、`workspace/episode-brief.md`（最優先）と `story/` 主要資料・前話を参照して、`workspace/current-draft.txt` に本文のみ出力してください。」に加え、episode-brief の要点（役割タグ、テンポプロファイル、構成パターン、感覚レンズ、蓮の選択場面、引きの型、牽引レベル・外的事件・引きの強度目標）をプロンプト本文に転記する。
    - 改稿（`revision_count > 0`）のプロンプト:
@@ -326,7 +328,7 @@ Step 8:  チームシャットダウン
 
 実行:
 1. `progress.md` を `step4 in_progress` に更新する。
-2. **arc-reviewer をスポーンする**。`team_name: novel-ep{番号}`, `name: arc-reviewer`, `subagent_type: novel-arc-reviewer`, `model: sonnet` で Agent スポーンし、**プロンプトにレビュー指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す）。
+2. **arc-reviewer をスポーンする**。`team_name: novel-ep{番号}`, `name: arc-reviewer`, `subagent_type: novel-arc-reviewer` で Agent スポーンし（モデルは登録層の指定に委ねる）、**プロンプトにレビュー指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す）。
    - プロンプト: 「あなたは第{番号}話のアークレビュアーです。`agents/arc-reviewer.md` を読み込み、`workspace/episode-brief.md`（評価基準の起点）と `workspace/current-draft.txt`（評価対象）を参照してレビューしてください。`story/character-arcs.md` で意図的未解決期間を確認し、`story/writing-guide.md` と `story/characters.md` も参照してください。リビジョン回数: {revision_count}/{max_revisions}。`workspace/arc-review.md` に出力してください。」
    - **改稿ループでの再レビュー時**: 旧 arc-reviewer に `shutdown_request` を送ってから再スポーンする。
 3. 完了報告を待ち、出力検証する。
