@@ -19,9 +19,13 @@ flowchart TD
     FIN --> END["Step 7.5-8\n品質ログ・シャットダウン"]
     END --> B{"幕の境界?"}
     B -->|Yes| AO["/arc-observe（Phase 2）"]
-    AO --> W
     B -->|No| W
+    AO --> VOL{"巻完結?"}
+    VOL -->|No 次話へ| W
+    VOL -->|Yes| SA
 ```
+
+巻完結時は `/arc-observe` の完了報告が次巻の `/setup-arc` を案内する（Phase 0 へ回帰）。
 
 ## 2. `/setup-world` 詳細
 
@@ -152,6 +156,7 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 | 6.5P | ポリッシュ（条件付き） | author | `current-draft.txt` 軽微修正（最大3件） |
 | 7 | 確定・保存・アーク進行更新 | Orchestrator | `episodes/*.txt`, `story/*` 更新（プロット消費監査: Layer 3） |
 | 7.5 | 品質ログ記録 | Orchestrator | `quality-log.md` |
+| 7.6 | エピソードレトロ | Orchestrator | KPT 自動生成 → 設計者に Try を最大1件提案 → 承認時 `handover-notes.md` に `[TRY-NEXT]` 追加 |
 | 8 | チームシャットダウン | Orchestrator | `archive/` 退避、`workspace/` クリーン |
 
 ### 5.3 条件付きステップの要点
@@ -161,9 +166,10 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 - **Step 7(a)-(e)**: 確定後のサブステップ:
   - (a) character-arcs.md 現在ステージ更新
   - (b) handover-notes.md アーク進行状況更新
-  - (c) series-tracker.md 更新（構成パターン履歴・感覚レンズ履歴・テンポプロファイル履歴・能動性追跡・シーン構造パターン・半透明パターン・アーク乖離チェック含む）
+  - (c) series-tracker.md 更新（構成パターン履歴・感覚レンズ履歴・テンポプロファイル履歴〔牽引レベル実績: 計画→実装を含む〕・能動性追跡・シーン構造パターン・半透明パターン・アーク乖離チェック含む）
   - (d) プロット消費監査（Layer 3）— 乖離時は `[PLOT-DRIFT]` で記録
   - (e) アーク観測の通知（幕境界の場合のみ）
+- **Step 7.6（エピソードレトロ）**: データソースは arc-review・reader-feedback・author-reflections・series-tracker 警告。KPT を自動生成し、Try は最大1件に絞って設計者の承認を得る。承認された Try は `[TRY-NEXT]` として次話の Step 2 でブリーフに反映され、反映後 `[RESOLVED]` に変わる。アーク設計（役割タグ・牽引レベル配分・幕構成）の変更を要する Try は `[TRY-NEXT]` ではなく `[DESIGN-REVIEW]` で記録し、`/arc-observe` または次巻 `/setup-arc` で処理する
 
 ### 5.4 Step 2 の執筆アクセントと品質保証
 `series-tracker.md` の直近5話履歴から以下を `episode-brief.md` に追記（**示唆。変更可**）:
@@ -184,13 +190,23 @@ arc-reviewer（Sonnet）が author（Opus）に議論で言い負かされるリ
 - **判定不変の原則**: 書面に記載した判定は議論で変更しない
 - **議論の非対称制限**: author → arc-reviewer は「意図の説明」のみ許可。「判定への異議」は禁止
 
+### 5.6 プロット乖離検知（3層構成）
+
+| 層 | タイミング | 実行者 | 検知内容 |
+|----|-----------|--------|---------|
+| Layer 1（予防） | Step 2 ブリーフ生成 | Orchestrator | plot-outline を参照し、series-tracker 警告より plot-outline を優先 |
+| Layer 2（検知） | Step 4 レビュー | arc-reviewer | ブリーフスコープ確認——brief に記載のないキャラ初登場・主要イベント消費を検出 |
+| Layer 3（事後監査） | Step 7(d) 確定時 | Orchestrator | plot-outline vs 実際の展開を照合。乖離は `[PLOT-DRIFT]` で handover-notes に記録 |
+
 ## 6. 判定分岐と改稿ループ
 
 ```mermaid
 flowchart TD
     A["Step 3-5 完了"] --> S0["自動スキャン<br/>メタナラティブ検出<br/>（話数+巻構造）"]
     S0 --> C{"force_pass?"}
-    C -->|Yes| FP["FORCE_PASS"]
+    C -->|Yes| UC{"ユーザー確認"}
+    UC -->|承認| FP["FORCE_PASS"]
+    UC -->|追加改稿指示| RR["revision_count を max-1 に\nリセットし Step 3 へ\n（追加1回のみ）"]
     C -->|No| D{"arc-reviewer = OK?"}
     D -->|No（REVISION_NEEDED残存）| FP
     D -->|Yes| E{"PASS_WITH_POLISH 条件?"}
@@ -234,24 +250,16 @@ Step 7 確定後、`progress.md` の `arc_phase_boundary = true` の場合、オ
 | Step | 内容 |
 |------|------|
 | 1 | `episodes/` 内の全 `.txt` を話数順に通読 |
-| 2 | `story/author-reflections.md` を通読（存在する場合） |
-| 3 | `story/scenario-arc.md`・`story/character-arcs.md` と照合 → `workspace/arc-observation-report.md` 生成 |
+| 2 | `story/author-reflections.md`（作者の声）、`story/reader-memory-*.md`・`story/quality-log.md`（読者体験の軌跡・★推移・`[PERSONA-ALERT]` 履歴）を通読（存在する場合） |
+| 3 | `story/scenario-arc.md`・`story/character-arcs.md` と照合（牽引レベル配分の計画 vs 実績を含む） → `workspace/arc-observation-report.md` 生成 |
 | 4 | 細部修正を自律実施。大筋修正は設計者に問い（A.承認/B.却下/C.修正）で確認後実施 |
 | 5 | 承認された変更を `story/` に反映 → `archive/arc-observe-vol{N}-act{N}/` にレポート保存 |
 
 ### 7.3 提案権限
 | 区分 | 内容 |
 |-----|------|
-| **細部**（設計者確認不要） | 合流ポイントの話数 ±2 話以内移動 / 「書かないことの宣言」への項目追加 / handover-notes スレッドタグ再評価 |
-| **大筋**（設計者確認が必要） | 感情頂点の話数移動 / 三幕構成幕境界変更 / キャラクターアーク変容ステージ追加・削除 / 感情命題修正 / 「書かないことの宣言」からの項目削除 |
-
-## 7.5 プロット乖離検知（3層構成）
-
-| 層 | タイミング | 実行者 | 検知内容 |
-|----|-----------|--------|---------|
-| Layer 1（予防） | Step 2 ブリーフ生成 | Orchestrator | plot-outline を参照し、series-tracker 警告より plot-outline を優先 |
-| Layer 2（検知） | Step 4 レビュー | arc-reviewer | ブリーフスコープ確認——brief に記載のないキャラ初登場・主要イベント消費を検出 |
-| Layer 3（事後監査） | Step 7(d) 確定時 | Orchestrator | plot-outline vs 実際の展開を照合。乖離は `[PLOT-DRIFT]` で handover-notes に記録 |
+| **細部**（設計者確認不要） | 合流ポイントの話数 ±2 話以内移動 / 「書かないことの宣言」への項目追加 / handover-notes スレッドタグ再評価 / 未執筆話の牽引レベル単話変更（B↔C の入れ替え） |
+| **大筋**（設計者確認が必要） | 感情頂点の話数移動 / 三幕構成幕境界変更 / キャラクターアーク変容ステージ追加・削除 / 感情命題修正 / 「書かないことの宣言」からの項目削除 / 牽引Aの配置変更・幕単位の牽引配分見直し（`[PERSONA-ALERT]` が幕内2回で必須提案） |
 
 ## 8. レジューム（再開）状態遷移
 
@@ -273,6 +281,8 @@ stateDiagram-v2
     Abort --> [*]
 ```
 
+- **Step 5 途中中断の特則**: `revision_count > 0` かつ `reader-feedback-*-v0.md` が存在する場合は再評価フェーズの途中——Step 5 Detail で `[x]` でない読者のみ最終稿で再スポーンする。`-v0.md` が存在しない場合は再評価前——退避から再実行する（resume-logic.md 参照）
+
 ## 9. Step 別のファイル生成タイムライン
 
 | フェーズ | 追加/更新される主ファイル |
@@ -285,12 +295,36 @@ stateDiagram-v2
 | Step 4 | `workspace/arc-review.md` |
 | Step 3bg→5 | `workspace/reader-feedback-*.md`（改稿時は `-v0.md` 退避 + 再評価）, `story/reader-memory-{ペルソナID}.md`（各読者が更新） |
 | Step 7 | `episodes/{番号:2桁}_{タイトル}.txt`, `story/episode-summaries.md`, `story/character-arcs.md`, `story/handover-notes.md`, `story/series-tracker.md` |
+| Step 6.5P | （発動時のみ）`workspace/current-draft.txt` を軽微修正で上書き |
 | Step 7(d) | （乖離時のみ）`story/handover-notes.md` に `[PLOT-DRIFT]` 追記 |
 | Step 7.5 | `story/quality-log.md` |
+| Step 7.6 | （Try 承認時のみ）`story/handover-notes.md` に `[TRY-NEXT]` 追記（アーク粒度は `[DESIGN-REVIEW]`） |
 | Step 8 | `archive/episode-{番号:2桁}/` へ `workspace/` 退避後クリーン |
 | `/arc-observe` Step 5 | `story/scenario-arc.md`（変更時）, `story/character-arcs.md`（変更時）, `story/handover-notes.md`, `archive/arc-observe-vol{N}-act{N}/` |
 
-## 10. 重要な運用ルール
+## 10. 情報アクセスマトリクス（コンテキスト汚染防止）
+
+誰が何を読み・読まないかは本システムの品質の要である。**×は禁止ではなく設計**——情報の非対称性が、誤読誘導の維持・議論汚染の防止・自己模倣の抑制を作る。新しい資料や参照経路を追加する際は、まずこの表に行を足してから配線すること。
+
+| 資料 | Orchestrator | author | arc-reviewer | 読者×N | arc-observer |
+|------|:---:|:---:|:---:|:---:|:---:|
+| `episode-brief.md` | ◎生成 | ○最優先 | ○評価基準 | タツヤのみ○ | ○ |
+| `plot-outline.md`（質感マーカー・次部構想含む） | ○ | **×** | × | × | ○ |
+| `scenario-arc.md` | ○ | **×**（ブリーフ経由で降ろす） | ×（ブリーフ経由） | 役割マップのみ○ | ○ |
+| `character-arcs.md` | ○ | × | ○未解決期間確認 | × | ○ |
+| `author-reflections.md` | ○レトロ時 | **書くのみ**（過去分は読まない） | × | × | ○意図の蒸留 |
+| `reader-memory-{ID}.md` | ×執筆判断に使わない | × | × | **本人のみ**読み書き | ○軌跡の観測 |
+| `arc-review.md` | ○判定 | ○改稿指針 | ◎生成 | × | ○ |
+| `reader-feedback-*.md` | ○判定・レトロ | ×（ポリッシュ時に指摘要約のみ受領） | × | 自分の出力のみ | ○ |
+| 基本資料（premise / setting / characters / writing-guide） | ○ | ○ | ○（writing-guide・characters） | タツヤのみ setting・characters ○ | ○ |
+
+主な設計理由:
+- **author が plot-outline・scenario-arc を読まない**: 全知の作者は伏線を「説明」してしまう。知らない作者は目の前の場面だけを書く（質感マーカー・次部構想の非開示を含む）
+- **author が自分の過去の reflections を読まない**: 自己模倣・文体の自家中毒を防ぐ。声は arc-observer が幕境界でまとめて蒸留する
+- **arc-reviewer が author-reflections・reader-feedback を読まない**: 判定の独立性を守る（書面先行ルールの前提）
+- **reader-memory が本人専用**: 読者の評価傾向が作者・レビュアーに漏れると、スコアへの最適化（読者に媚びる執筆）が起きる
+
+## 11. 重要な運用ルール
 
 - `arc-review.md` の検証完了前に Step 4D を開始しない（書面先行ルール）
 - Step 4D のディスカッションは判定変更を目的にしない（判定不変の原則）

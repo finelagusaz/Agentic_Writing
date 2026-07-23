@@ -12,6 +12,9 @@
       - `current_step` と `step_status` から再開地点を決定:
         - `step_status` が `completed` → 次のステップから再開
         - `step_status` が `in_progress` → そのステップを再実行（Step 5 は部分完了を考慮）
+        - **Step 5 再開の特則（改稿発生時の再評価）**: `revision_count > 0` の場合、`workspace/reader-feedback-*-v0.md` の有無で再評価フェーズの進行を判定する:
+          - `-v0.md` が存在する → 再評価の途中。「Step 5 Detail」で `[x]` でない読者のみ最終稿で再スポーンする
+          - `-v0.md` が存在しない → 再評価前。回収済みフィードバックを `-v0.md` に退避してから全読者を再スポーンする
       - ディスカッションステップ（step4d）は状態が非永続。中断時はディスカッション全体を再実行
       - 再開前に、再開先ステップの前提ファイルが存在・有効か Glob + Read で検証する。欠落時はユーザーに警告し新規開始にフォールバック
       - `revision_count` と `force_pass` を progress.md の値で復元

@@ -133,6 +133,7 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
    - `step5` 再評価: 改稿が発生していた場合、初回評価を v0 として退避し、読者が最終稿で再評価する
    - `step6.5p`: PASS_WITH_POLISH 時の軽微修正
    - `step7.5`: 品質ログ記録
+   - `step7.6`: エピソードレトロ（KPT 自動生成 → 設計者承認の Try を `[TRY-NEXT]` として handover-notes に記録。アーク設計粒度の Try は `[DESIGN-REVIEW]` で記録し `/arc-observe` または次巻 `/setup-arc` で処理）
 4. ループ
    - REVISION_NEEDED 時は Step 3 に戻る（arc-reviewer が author と協議）
    - `revision_count >= max_revisions` で `FORCE_PASS`
@@ -141,8 +142,10 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 
 ```
 Step 1  全確定エピソード通読（episodes/*.txt）
-Step 2  story/author-reflections.md 通読（存在する場合）
-Step 3  設計アークと実際の乖離を分析 → arc-observation-report.md 生成
+Step 2  story/author-reflections.md（作者の声）+ story/reader-memory-*.md・
+        story/quality-log.md（読者体験の軌跡）を通読（存在する場合）
+Step 3  設計アークと実際の乖離を分析（牽引レベル配分の計画 vs 実績を含む）
+        → arc-observation-report.md 生成
 Step 4  細部修正を自律実施 / 大筋修正は設計者と協議（A.承認/B.却下/C.修正）
 Step 5  承認された変更を story/ に反映 → archive/ に保存
 ```
@@ -193,7 +196,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 | `story/episode-summaries.md` | Step 7 | 直近話/アーク要約更新 |
 | `story/character-arcs.md` | Step 7(a) | 現在ステージ更新 |
 | `story/handover-notes.md` | Step 7(b) | アーク進行状況・スレッド再評価・`[PLOT-DRIFT]` 記録 |
-| `story/series-tracker.md` | Step 7(c) | 横断指標・構成パターン履歴・感覚レンズ履歴・アーク乖離チェック更新 |
+| `story/series-tracker.md` | Step 7(c) | 横断指標・構成パターン履歴・感覚レンズ履歴・テンポプロファイル履歴（牽引レベル実績: 計画→実装）・アーク乖離チェック更新 |
 | `story/plot-outline.md` | Step 7(d)（乖離時） | プロット消費監査で乖離検出時のみ記録 |
 | `story/reader-memory-{ペルソナID}.md` | Step 5（各読者が自身で更新） | 読者の蓄積記憶（印象の蓄積・期待・予感・評価傾向メモ） |
 | `story/quality-log.md` | Step 7.5 | 品質記録 |
@@ -204,7 +207,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 
 ### 8.1 判定ロジック（Step 6）
 1. メタナラティブ自動スキャン（`第\d+話` パターンがタイトル行以外に存在しないか）
-2. `force_pass: true` なら `FORCE_PASS`
+2. `force_pass: true` ならユーザー確認を経て `FORCE_PASS`（自動確定しない。追加改稿指示があった場合は `revision_count` を `max_revisions - 1` にリセットして Step 3 へ戻る——追加1回のみ）
 3. arc-reviewer 判定と reader 評価（平均・中央値）を集計
 4. arc-reviewer が `OK` の場合、PASS_WITH_POLISH 条件を確認:
    - arc-review に軽微問題2件以上 / 読者2名以上の共通指摘 / 読者平均★3.0未満 / **いずれかの読者★2以下（少数派拒否権）**
@@ -243,8 +246,8 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 ### 8.6 arc-observer の提案権限（Phase 2）
 | 区分 | 内容 |
 |-----|------|
-| **細部**（設計者確認不要） | 合流ポイントの話数 ±2 話以内移動、「書かないことの宣言」への項目追加、handover-notes スレッドタグ再評価 |
-| **大筋**（設計者確認が必要） | 感情頂点の話数移動、三幕構成幕境界変更、キャラクターアーク変容ステージ追加・削除、感情命題修正、「書かないことの宣言」からの項目削除 |
+| **細部**（設計者確認不要） | 合流ポイントの話数 ±2 話以内移動、「書かないことの宣言」への項目追加、handover-notes スレッドタグ再評価、未執筆話の牽引レベル単話変更（B↔C） |
+| **大筋**（設計者確認が必要） | 感情頂点の話数移動、三幕構成幕境界変更、キャラクターアーク変容ステージ追加・削除、感情命題修正、「書かないことの宣言」からの項目削除、牽引Aの配置変更・幕単位の牽引配分見直し（`[PERSONA-ALERT]` 幕内2回で必須提案） |
 
 ## 9. 失敗時挙動・復旧
 
