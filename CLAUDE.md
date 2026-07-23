@@ -88,6 +88,10 @@ archive/                 過去のドラフト
 - リビジョン上限に達した場合は FORCE_PASS で通過する
 - AI癖制御ルール（writing-guide.md に記載）は全エージェントが遵守する
 
+### ドキュメントの SSOT
+- 手順・判定条件・数値閾値・定義表の**正本は実行層**（`.claude/skills/` と `agents/`）。SPEC.md・docs/workflows.md・本ファイルは派生ビューであり、矛盾を見つけたら実行層に合わせて派生側を直す
+- 所有権マップと変更プロトコルは `SPEC.md` §2.3 に定義。文書を変更するときはオーナーから着手し、派生ビューには数値・定義表を複製しない（参照に留める）
+
 ## ワークフロー概要
 
 `/write-episode 〈番号〉` で起動。全ステップ自動実行。前提: `story/scenario-arc.md` と `story/character-arcs.md` が必要（`/setup-arc` で生成）。
