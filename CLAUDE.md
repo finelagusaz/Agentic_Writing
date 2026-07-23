@@ -29,6 +29,7 @@ story/                   作品資料（/setup-world / /setup-arc で生成）
   scenario-arc.md        シナリオアーク（/setup-arc で生成）
   character-arcs.md      キャラクターアーク（/setup-arc で生成）
   reader-personas.md     読者ペルソナ定義
+  reader-memory-*.md     読者の蓄積記憶（印象・期待・評価傾向。読者自身が話ごとに更新）
   author-reflections.md  作者の気づき（話ごとの一言メモ）
   episode-summaries.md   各話あらすじ
   series-tracker.md      横断追跡（配分・登場密度・伏線進展・表現傾向・乖離チェック）
@@ -60,7 +61,7 @@ archive/                 過去のドラフト
 |------------|------|-------|-------------|
 | 作者 (author) | エピソード本文の執筆・改稿 | opus | `/write-episode` 毎話 |
 | アークレビュアー (arc-reviewer) | 役割タグ準拠評価・改稿判定 | sonnet | `/write-episode` 毎話 |
-| 読者×N | ペルソナベースのフィードバック（初稿のみ） | sonnet | `/write-episode` 初稿時 |
+| 読者×N | ペルソナベースのフィードバック（reader-memory で読書体験を蓄積） | sonnet | `/write-episode` 初稿時（改稿発生時は Step 5 で最終稿による再評価） |
 | アークオブザーバー (arc-observer) | 全エピソード通読・アーク乖離検出・修正提案 | — | `/arc-observe`（幕境界） |
 
 > **編集 (editor)** は `/edit-story` スキルでのみ使用。`/write-episode` では廃止済み。
@@ -94,10 +95,10 @@ archive/                 過去のドラフト
 1. **初期化 / 再開判定**: workspace 準備・前回進捗の確認
 2. **チーム作成（Step 1）**: TeamCreate のみ。コアメンバーは使用ステップで遅延スポーン
 3. **エピソードブリーフ生成（Step 2）**: オーケストレーターが `episode-brief.md` を直接生成（アーク設計から降ろし）
-4. **作者スポーン＋初稿執筆（Step 3）**: author を指示付きでスポーン → `current-draft.txt` 出力 → 読者をバックグラウンドスポーン（初稿のみ。前話の本文も参照ファイルとして渡す）
+4. **作者スポーン＋初稿執筆（Step 3）**: author を指示付きでスポーン → `current-draft.txt` 出力 → 読者をバックグラウンドスポーン（初稿時。前話の本文と reader-memory も参照ファイルとして渡す）
 5. **アークレビュアースポーン＋レビュー（Step 4）**: arc-reviewer を指示付きでスポーン → `arc-review.md` 出力
 6. **ドラフトディスカッション（Step 4D）**: REVISION_NEEDED の場合→ Step 3 へループ（改稿）
-7. **読者フィードバック回収（Step 5）**: バックグラウンドの読者結果を回収
+7. **読者フィードバック回収（Step 5）**: バックグラウンドの読者結果を回収（改稿が発生していた場合は最終稿で再評価）
 8. **判定（Step 6）**: PASS / PASS_WITH_POLISH / FORCE_PASS
 9. **確定・保存（Step 7）**: episodes/ に保存、アーク進行更新、プロット消費監査
 10. **品質ログ（Step 7.5）**: quality-log.md に記録

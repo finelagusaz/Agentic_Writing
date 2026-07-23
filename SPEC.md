@@ -21,7 +21,7 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 |------------|------|-------|-------------|
 | `author`（作者） | 本文執筆・改稿 | Opus | Phase 1 毎話 |
 | `arc-reviewer`（アークレビュアー） | 役割タグ準拠評価・台詞スタイル検査・改稿判定 | Sonnet | Phase 1 毎話 |
-| `reader-*`（読者 × N） | ペルソナ別感想・評価 | Sonnet | Phase 1 毎話（bg） |
+| `reader-*`（読者 × N） | ペルソナ別感想・評価（`story/reader-memory-{ID}.md` で読書体験を蓄積） | Sonnet | Phase 1 毎話（bg。改稿発生時は Step 5 で最終稿による再評価） |
 | `arc-observer`（アークオブザーバー） | 全エピソード通読・乖離検出・設計修正 | — | Phase 2（幕の境界） |
 
 > **編集エージェント（editor）は廃止済み**。エピソードブリーフ生成はオーケストレーターが直接担当する。
@@ -107,7 +107,8 @@ Step C  Claude が問いを提示（選択肢5択形式） → 設計者が回�
         ※ 構造的完全性チェック全項目完了まで繰り返す
 Step D  キャラクターアーク草案生成
 Step E  同上ループ
-Step F  エピソード役割マップ完成
+Step F  エピソード役割マップ完成（役割タグ + 牽引レベル A/B/C の二軸。
+        各幕に牽引A 1話以上〔頂点回を除く〕・牽引C 2話連続禁止・最終話に次巻への種）
 Step G  設計者承認 → アーク設計ロック（執筆解禁）
 ```
 
@@ -125,9 +126,11 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 1. 再開判定（`progress.md`）
 2. Step 0〜8 の順次実行
    - Step 2 のブリーフ生成時は `story/plot-outline.md` を参照し、今話のプロット骨格と整合を取る。**series-tracker の警告（キャラクター登場密度・伏線未進展）と plot-outline の計画が矛盾する場合は plot-outline を優先する**
+   - Step 2 のブリーフには「読者牽引設計」（牽引レベル A/B/C・外的事件・引きの強度目標）を必須で含める。牽引レベル列のない旧形式アークは役割タグから推定する（頂点・転換→A、助走→B、蓄積・余韻→C）
 3. 条件付き分岐
    - `step2q`: 設計者への問い（アーク解釈に不明点がある場合）
    - `step4d`: レビュー後ディスカッション（REVISION_NEEDED 時）
+   - `step5` 再評価: 改稿が発生していた場合、初回評価を v0 として退避し、読者が最終稿で再評価する
    - `step6.5p`: PASS_WITH_POLISH 時の軽微修正
    - `step7.5`: 品質ログ記録
 4. ループ
@@ -159,7 +162,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 | `workspace/accent-note.md` | Step 3（変更時のみ） | 構成パターン/感覚レンズ変更メモ（Step 7 で転記後削除） |
 | `workspace/current-draft.txt` | Step 3（改稿ごとに更新） | 執筆本文 |
 | `workspace/arc-review.md` | Step 4 | アークレビュアー評価 |
-| `workspace/reader-feedback-*.md` | Step 3 後バックグラウンド生成、Step 5 回収 | 読者 FB |
+| `workspace/reader-feedback-*.md` | Step 3 後バックグラウンド生成、Step 5 回収 | 読者 FB（改稿発生時は初回評価を `-v0.md` に退避し最終稿で再評価） |
 | `workspace/revision-log.md` | Step 0 初期化、改稿時追記 | 改稿履歴 |
 | `workspace/discussion-log.md` | Step 0 初期化、各ディスカッション追記 | 議論記録 |
 | `workspace/progress.md` | Step 0 作成、全ステップで更新 | 再開制御 |
@@ -178,7 +181,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 | `story/handover-notes.md` | アーク進行状況・申し送りスレッド | `/setup-world` |
 | `story/quality-log.md` | 品質ログテンプレート | `/setup-world` |
 | `story/series-tracker.md` | 横断追跡テンプレート | `/setup-world` or `/setup-arc` |
-| `story/scenario-arc.md` | 感情命題・三幕構成・感情頂点・書かないこと宣言・役割マップ | `/setup-arc` |
+| `story/scenario-arc.md` | 感情命題・三幕構成・感情頂点・書かないこと宣言・役割マップ（役割タグ + 牽引レベル） | `/setup-arc` |
 | `story/character-arcs.md` | キャラクターアーク（変容ステージ・合流ポイント・未解決期間） | `/setup-arc` |
 | `story/arc-design-progress.md` | チェックリスト状態（LOCKED で執筆解禁） | `/setup-arc` |
 
@@ -192,6 +195,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 | `story/handover-notes.md` | Step 7(b) | アーク進行状況・スレッド再評価・`[PLOT-DRIFT]` 記録 |
 | `story/series-tracker.md` | Step 7(c) | 横断指標・構成パターン履歴・感覚レンズ履歴・アーク乖離チェック更新 |
 | `story/plot-outline.md` | Step 7(d)（乖離時） | プロット消費監査で乖離検出時のみ記録 |
+| `story/reader-memory-{ペルソナID}.md` | Step 5（各読者が自身で更新） | 読者の蓄積記憶（印象の蓄積・期待・予感・評価傾向メモ） |
 | `story/quality-log.md` | Step 7.5 | 品質記録 |
 | `archive/episode-{番号:2桁}/` | Step 8 | 監査・再検証用保存（`workspace/` 退避） |
 | `archive/arc-observe-vol{N}-act{N}/` | `/arc-observe` Step 5 | アーク観測レポート保存 |
@@ -203,9 +207,11 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 2. `force_pass: true` なら `FORCE_PASS`
 3. arc-reviewer 判定と reader 評価（平均・中央値）を集計
 4. arc-reviewer が `OK` の場合、PASS_WITH_POLISH 条件を確認:
-   - arc-review に軽微問題2件以上 / 読者2名以上の共通指摘 / 読者平均★3.0未満
+   - arc-review に軽微問題2件以上 / 読者2名以上の共通指摘 / 読者平均★3.0未満 / **いずれかの読者★2以下（少数派拒否権）**
    → いずれかに該当で `PASS_WITH_POLISH`、いずれにも非該当で `PASS`
+   - 少数派拒否権の発動はポリッシュ止まりであり、改稿ループには入れない（設計上「低強度で当然」の回を読者スコアで壊さないため）
 5. 読者間★差2以上の場合は差分分析を実施し handover-notes に記録
+6. **ペルソナ警報**: 同一ペルソナの★が今話を含め3話連続で3以下の場合、`[PERSONA-ALERT]` スレッドを handover-notes に発行する。次話の Step 2 で `[MUST-THIS]` と同格に処理され、該当ペルソナの重視軸をブリーフの焦点に1項目昇格させる
 
 ### 8.2 書面先行・判定不変
 - `arc-review.md` 検証完了後にのみ Step 4D を開始する
@@ -222,6 +228,7 @@ Step 5  承認された変更を story/ に反映 → archive/ に保存
 
 ### 8.4 軽微修正（PASS_WITH_POLISH）
 - 修正対象は最大3件
+- 少数派拒否権で発動した場合は、★2以下を付けた読者の指摘を必ず1件以上含める
 - 全体構成は変更しない
 - arc-reviewer 再レビュー・reader 再評価は行わない
 

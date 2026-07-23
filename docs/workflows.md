@@ -76,7 +76,7 @@ Step C  Claude が問いを提示（選択肢5択形式）→ 設計者が回答
         ※ 構造的完全性チェック全項目完了まで繰り返す
 Step D  キャラクターアーク草案生成
 Step E  同上ループ（追加チェック完了まで）
-Step F  エピソード役割マップ完成（全話に役割タグを割り当て）
+Step F  エピソード役割マップ完成（全話に役割タグ + 牽引レベル A/B/C を割り当て）
 Step G  設計者承認 → アーク設計ロック（執筆解禁）
 ```
 
@@ -89,10 +89,19 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 | **転換** | 物語の方向を変える。新情報は一つだけ |
 | **蓄積** | 世界観・関係性を積み上げる |
 
+### 3.2b 牽引レベル定義（役割タグと直交する読者体験の次元）
+| レベル | 定義 | 実装要件 |
+|-------|------|---------|
+| **A（牽引重点回）** | 読む手を止めさせない回 | 外的事件（対立・危機・発見・対決）1つ必須。主人公の「決断」必須。引きは明示的謎/選択の予感 |
+| **B（標準回）** | 通常の牽引 | 引きの強度「中」以上 |
+| **C（沈殿回）** | 静けさを許容する回 | 「一粒の謎」（静けさを壊さない微小フック）を必ず残す |
+
+配置制約: 各幕に牽引A 1話以上（頂点回を除く。4話以下の短い幕は頂点回兼任を備考明記で許容）/ 牽引C 2話連続禁止 / 巻の最終話に次巻への種を牽引要素として明記。
+
 ### 3.3 出力契約
 | ファイル | 内容 |
 |---------|------|
-| `story/scenario-arc.md` | 感情命題・三幕構成・感情頂点・書かないこと宣言・役割マップ |
+| `story/scenario-arc.md` | 感情命題・三幕構成・感情頂点・書かないこと宣言・役割マップ（役割タグ + 牽引レベル） |
 | `story/character-arcs.md` | 変容ステージ・合流ポイント・意図的未解決期間 |
 | `story/series-tracker.md` | 横断追跡テンプレート（未存在時のみ新規作成） |
 | `story/arc-design-progress.md` | チェックリスト状態（LOCKED で執筆解禁） |
@@ -124,7 +133,7 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 | --- | --- | --- | --- |
 | 作者 (author) | novel-author | opus | 本文執筆・改稿 |
 | アークレビュアー (arc-reviewer) | novel-arc-reviewer | sonnet | 役割タグ準拠評価・ブリーフスコープ確認・改稿判定 |
-| 読者×N | novel-reader-* | sonnet | ペルソナベースのフィードバック（初稿のみ） |
+| 読者×N | novel-reader-* | sonnet | ペルソナベースのフィードバック（`story/reader-memory-{ID}.md` で読書体験を蓄積。改稿発生時は Step 5 で最終稿を再評価） |
 
 ### 5.2 基本ステップ
 
@@ -135,10 +144,10 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 | 2 | エピソードブリーフ生成 | Orchestrator | `episode-brief.md`（アーク設計から導出・執筆アクセント・plot-outline 参照含む） |
 | 2Q | 設計者への問い（任意） | Orchestrator | `discussion-log.md` 追記 |
 | 3 | 作者（執筆/改稿） | author | `current-draft.txt`, `author-reflections.md`, `accent-note.md`（変更時のみ） |
-| 3bg | 読者バックグラウンドスポーン | Orchestrator | 初稿時のみ。読者を並列起動 |
+| 3bg | 読者バックグラウンドスポーン | Orchestrator | 初稿時のみ。読者を並列起動（`reader-memory-{ID}.md` を渡す） |
 | 4 | アークレビュー | arc-reviewer | `arc-review.md`（ブリーフスコープ確認: Layer 2） |
 | 4D | ドラフトディスカッション | author + arc-reviewer | `discussion-log.md`（REVISION_NEEDED 時は Step 3 へ） |
-| 5 | 読者フィードバック回収 | Orchestrator | `reader-feedback-*.md` 検証 |
+| 5 | 読者フィードバック回収 | Orchestrator | `reader-feedback-*.md` 検証。改稿発生時は初回評価を `-v0.md` に退避し最終稿で再評価。各読者が `reader-memory-{ID}.md` を更新 |
 | 6 | 判定 | Orchestrator | PASS / PASS_WITH_POLISH / FORCE_PASS |
 | 6.5P | ポリッシュ（条件付き） | author | `current-draft.txt` 軽微修正（最大3件） |
 | 7 | 確定・保存・アーク進行更新 | Orchestrator | `episodes/*.txt`, `story/*` 更新（プロット消費監査: Layer 3） |
@@ -162,7 +171,8 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 - **感覚レンズ推奨**: 4分類（視覚・聴覚・触覚・嗅覚味覚）から重複回避して推奨
 - **テンポプロファイル**: 6種（圧縮・展開・加速・衝撃・減速・波動）から直前2話と重複回避して選定
 - **蓮の選択場面（必須）**: 判断 or 決断を設計。選ばなかった選択肢も明示
-- **引きの型**: 4類型（明示的謎・不安の種・感情の残響・選択の予感）から直前2話と重複回避
+- **読者牽引設計（必須）**: 牽引レベル（A/B/C）を scenario-arc の役割マップから取得（旧形式は役割タグから推定: 頂点・転換→A、助走→B、蓄積・余韻→C）。牽引Aは外的事件1つ必須、牽引Cは「一粒の謎」を設計
+- **引きの型**: 4類型（明示的謎・不安の種・感情の残響・選択の予感）から直前2話と重複回避。牽引Aは明示的謎/選択の予感に制約、牽引Cも強度ゼロ禁止
 - **反パターン制約（必須）**: `series-tracker.md` のシーン構造パターンテーブルから直近3話の実装構造を取得し、重複する主構造・冒頭・食事場面等を明示的に禁止
 
 変更した場合は `workspace/accent-note.md` を生成 → Step 7 で `series-tracker.md` の変更メモ列に転記後削除。
@@ -184,7 +194,7 @@ flowchart TD
     C -->|No| D{"arc-reviewer = OK?"}
     D -->|No（REVISION_NEEDED残存）| FP
     D -->|Yes| E{"PASS_WITH_POLISH 条件?"}
-    E -->|"arc-review軽微問題≥2\nOR 読者2名共通指摘\nOR 読者平均★<3.0"| PWP["PASS_WITH_POLISH"]
+    E -->|"arc-review軽微問題≥2\nOR 読者2名共通指摘\nOR 読者平均★<3.0\nOR いずれかの読者★≤2（少数派拒否権）"| PWP["PASS_WITH_POLISH"]
     E -->|いずれにも非該当| PASS["PASS"]
 
     PWP --> POL["Step 6.5P 軽微修正"]
@@ -195,7 +205,14 @@ flowchart TD
     A --> GAP{"読者間★差≥2?"}
     GAP -->|Yes| ANAL["差分分析→handover-notes記録"]
     GAP -->|No| SKIP["スキップ"]
+
+    A --> PA{"同一ペルソナ★≤3\nが3話連続?"}
+    PA -->|Yes| ALERT["[PERSONA-ALERT] 発行\n次話ブリーフで MUST-THIS 同格処理"]
+    PA -->|No| SKIP2["スキップ"]
 ```
+
+- 少数派拒否権の発動はポリッシュ止まり（改稿ループには入れない。設計上「低強度で当然」の回を読者スコアで壊さないため）
+- ポリッシュの指摘選定では、★2以下を付けた読者の指摘を必ず1件以上含める
 
 ### 改稿ループ（Step 4D 遷移）
 
@@ -266,7 +283,7 @@ stateDiagram-v2
 | Step 2 | `workspace/episode-brief.md` |
 | Step 3 | `workspace/current-draft.txt`, `story/author-reflections.md`, `workspace/accent-note.md`（変更時のみ） |
 | Step 4 | `workspace/arc-review.md` |
-| Step 3bg→5 | `workspace/reader-feedback-*.md` |
+| Step 3bg→5 | `workspace/reader-feedback-*.md`（改稿時は `-v0.md` 退避 + 再評価）, `story/reader-memory-{ペルソナID}.md`（各読者が更新） |
 | Step 7 | `episodes/{番号:2桁}_{タイトル}.txt`, `story/episode-summaries.md`, `story/character-arcs.md`, `story/handover-notes.md`, `story/series-tracker.md` |
 | Step 7(d) | （乖離時のみ）`story/handover-notes.md` に `[PLOT-DRIFT]` 追記 |
 | Step 7.5 | `story/quality-log.md` |

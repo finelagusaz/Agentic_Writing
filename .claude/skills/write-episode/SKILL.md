@@ -149,6 +149,7 @@ Step 8:  チームシャットダウン
 4. `story/handover-notes.md` を Read し、スレッドをトリアージする:
    - `progress.md` の `handover_legacy_format` が `true` の場合（旧形式）: 各未解決項目を `[MUST-VOL]` として仮分類する。Step 2Q で設計者に分類の確認を求める（この場合 Step 2Q は省略しない）
    - `[MUST-THIS]`: 今話で扱う（episode-brief に明示）
+   - `[PERSONA-ALERT]`: 読者体験の警報（Step 6 の判定ロジックで発行される）。`[MUST-THIS]` と同格に扱い、該当ペルソナの重視軸（例: ユウキ→能動性・引き・外的事件）を「今話の焦点」または「読者牽引設計」に1項目昇格させる。反映後、タグを `[RESOLVED]` に変更する
    - `[TRY-NEXT]`: 前話のエピソードレトロで承認された改善提案。episode-brief の該当セクション（反パターン制約、蓮の選択場面、アクセント等）に反映する。反映後、タグを `[RESOLVED]` に変更する
    - `[MUST-VOL]` 以下: 参考として記録するに留め、今話で処理しない
 5. `story/plot-outline.md` を Read し、今話のプロット骨格を確認する:
@@ -191,6 +192,13 @@ Step 8:  チームシャットダウン
 - 選ばなかった選択肢：（選択の重みを生む「もう一つの道」を設計する）
 - 選択の型：（判断 or 決断。反応のみは不可）
 
+## 読者牽引設計（必須）
+
+- 牽引レベル: {A/B/C}（scenario-arc の役割マップから取得）
+- 外的事件: （牽引Aの場合は必須。対立・危機・発見・対決のいずれかを具体的に設計する。B/C は任意）
+- 引きの強度目標: {A→強 / B→中 / C→一粒の謎}
+- 一粒の謎（牽引Cのみ）: （静けさを壊さずに残す微小フックを1つ設計する。模範: 「砂の一粒が動いた。風はなかった」）
+
 ## シーン構成・文字数目安
 
 （役割タグに応じた構成案と `story/premise.md` の想定文字数）
@@ -224,7 +232,8 @@ Step 8:  チームシャットダウン
 - **感覚レンズ推奨**: 直近5話で最も使用頻度の低いレンズを推奨する。全レンズが同頻度の場合は最終使用が最も古いレンズを優先する。
 - **テンポプロファイル選定**: `story/series-tracker.md` の「テンポプロファイル履歴」から直前2話のプロファイルを取得し、それと異なるプロファイルを選定する。`story/writing-guide.md` のテンポ強度カーブ（§7.5）で今話の役割タグとの親和性を参照して最終決定する。
 - **蓮の選択場面設計（必須）**: `story/scenario-arc.md` と `story/character-arcs.md` から今話の焦点を踏まえ、蓮が下す「判断」または「決断」を具体的に設計する。`story/series-tracker.md` の「主人公の能動性追跡」で直近の選択パターンを確認し、同じ型の繰り返しを避ける。「選ばなかった選択肢」も必ず設計する。
-- **引きの型選定**: `story/series-tracker.md` の「テンポプロファイル履歴」から直前2話の引きの型を取得し、それと異なる型を `story/writing-guide.md` の引きの4類型から選定する。
+- **牽引レベル取得（必須）**: `story/scenario-arc.md` の役割マップから今話の牽引レベル（A/B/C）を取得する。牽引レベル列が存在しない旧形式のアークの場合は役割タグから推定する（頂点・転換→A、助走→B、蓄積・余韻→C）。牽引Aの回は外的事件（対立・危機・発見・対決）を1つ具体的に設計する。
+- **引きの型選定**: `story/series-tracker.md` の「テンポプロファイル履歴」から直前2話の引きの型を取得し、それと異なる型を `story/writing-guide.md` の引きの4類型から選定する。**牽引レベルによる制約**: 牽引Aの回は「明示的謎」または「選択の予感」から選ぶ（直前2話との重複回避より本制約を優先する）。牽引Cの回も引きの強度ゼロは禁止——「感情の残響」単独で閉じる場合は「一粒の謎」を残響の中に埋め込む。
 - **反パターン制約生成（必須）**: `story/series-tracker.md` の「シーン構造パターン」テーブルから直近3話の主要シーン構造・冒頭の入り方・食事場面を取得し、重複する実装パターンを episode-brief の「反パターン制約」セクションに明示的な禁止事項として記載する。テーブルが存在しない場合（第1話等）はこのセクションを省略する。
 - 履歴データが存在しない場合（第1話）は「執筆のアクセント」セクションを省略する（`accent_note_applicable: false` を `progress.md` に記録）。ただし「蓮の選択場面」セクションは episode-brief 本体に必ず含める。
 
@@ -278,7 +287,7 @@ Step 8:  チームシャットダウン
 1. `progress.md` を `step3 in_progress` に更新する。
 2. **author をスポーン（または再スポーン）する**。`team_name: novel-ep{番号}`, `name: author`, `subagent_type: novel-author`, `model: opus` で Agent スポーンし、**プロンプトに執筆指示を直接含める**（SendMessage ではなくスポーン時プロンプトで渡す。opus モデルの応答率改善のため）。
    - 初稿（`revision_count == 0`）のプロンプト:
-     - 「あなたは第{番号}話の作者です。`agents/author.md` を読み込み、`workspace/episode-brief.md`（最優先）と `story/` 主要資料・前話を参照して、`workspace/current-draft.txt` に本文のみ出力してください。」に加え、episode-brief の要点（役割タグ、テンポプロファイル、構成パターン、感覚レンズ、蓮の選択場面、引きの型）をプロンプト本文に転記する。
+     - 「あなたは第{番号}話の作者です。`agents/author.md` を読み込み、`workspace/episode-brief.md`（最優先）と `story/` 主要資料・前話を参照して、`workspace/current-draft.txt` に本文のみ出力してください。」に加え、episode-brief の要点（役割タグ、テンポプロファイル、構成パターン、感覚レンズ、蓮の選択場面、引きの型、牽引レベル・外的事件・引きの強度目標）をプロンプト本文に転記する。
    - 改稿（`revision_count > 0`）のプロンプト:
      - 「あなたは第{番号}話の作者です。`agents/author.md` を読み込み、`workspace/episode-brief.md` と `workspace/arc-review.md` を参照して改稿し、`workspace/current-draft.txt` を上書きしてください。」に加え、arc-review の指摘事項要約をプロンプトに転記する。
    - **改稿時の旧 author 処理**: 改稿で再スポーンする場合、旧 author がまだ存在する可能性がある。旧 author に `shutdown_request` を送ってからスポーンし、上書き競合を防ぐ（CLAUDE.md Gotchas 参照）。
@@ -299,10 +308,11 @@ Step 8:  チームシャットダウン
 #### Step 3 完了直後: 読者バックグラウンドスポーン
 
 実行:
-1. **初稿（`revision_count == 0`）のみ**実行する。改稿時はスキップする。
+1. **初稿（`revision_count == 0`）のみ**実行する。改稿時はスキップする（改稿が発生した場合、この初回評価は暫定となり、Step 5 で最終稿による再評価を行う）。
 2. `story/reader-personas.md` から各ペルソナを取得し、`team_name` なし・`run_in_background: true` で並列 Task スポーンする。
 3. 各読者 prompt:
    - `workspace/current-draft.txt` を読み、`agents/readers/reader-template.md` に従って `workspace/reader-feedback-{ペルソナID}.md` に出力する。
+   - **全読者共通**で `story/reader-memory-{ペルソナID}.md`（これまでの読書体験の蓄積）を参照させ、フィードバック出力後に reader-template.md の「読書メモの更新」に従って同ファイルを更新させる。ファイルが存在しない場合はテンプレート構成で新規作成させる。
    - **全読者共通**で `story/episode-summaries.md`（既読の蓄積）と `story/scenario-arc.md` のエピソード役割マップ（今話の位置把握）も参照させる。
    - **全読者共通**で前話の本文（`episodes/{N-1:2桁}_{タイトル}.txt`）も参照させる。第1話の場合はスキップ。前話の本文を読むことで、連続する2話間の感情の落差・蓄積の回収・テンポの変化を体験として評価できる。あらすじだけでは伝わらない「前話を読んだ直後にこの話を読む」体験を再現する。
    - `story/quality-log.md` が存在する場合のみ、**全読者共通**で直近3話分の記録（各ペルソナの★と主要指摘）を参照させ、「前話からの改善/後退」という相対評価軸も含めるよう指示する。存在しない場合（第1話等）はこの参照をスキップする。
@@ -369,10 +379,14 @@ Step 8:  チームシャットダウン
 2. 通常フロー:
    - Step 3 で記録した各読者 Task ID を使い、TaskOutput（`block: true`）で完了を待つ。
    - 全ペルソナを並列で待機する。
-3. 再開フォールバック:
+3. 改稿時の再評価（`revision_count > 0` の場合のみ。無改稿時はスキップ）:
+   - 回収済みの各 `workspace/reader-feedback-{ペルソナID}.md` を `workspace/reader-feedback-{ペルソナID}-v0.md` にリネームして退避する（初稿への暫定評価。archive に参考記録として残る）
+   - Step 3 完了直後と同手順で全読者を最終稿（`workspace/current-draft.txt`）に対して再スポーンし、完了を待つ（reader-memory の同一話エントリは再評価で置き換えられる）
+   - 判定（Step 6）には再評価のフィードバックのみを使用する
+4. 再開フォールバック:
    - 再開時などで未スポーンなら、Step 3 完了時と同手順で未完了分のみスポーンする。
    - `progress.md` の「Step 5 Detail」で `[x]` のペルソナは再スポーンしない。
-4. 共通検証:
+5. 共通検証:
    - 各 `workspace/reader-feedback-{ペルソナID}.md` を個別検証する。
    - 失敗分のみリトライする。
    - 検証成功したペルソナから「Step 5 Detail」を `[x]` に更新する。
@@ -449,6 +463,7 @@ Step 8:  チームシャットダウン
 ```
 
 4. 設計者に **Try** の承認を求める:
+   - **粒度の判定（承認を求める前に行う）**: Try がアーク設計（役割タグ・牽引レベル配分・幕構成）の変更を要する場合は `[TRY-NEXT]` ではなく `[DESIGN-REVIEW]` タグで `story/handover-notes.md` に記録し、`/arc-observe` または次巻 `/setup-arc` で処理する（エピソード粒度の Try に無理に圧縮しない）
    - **承認** → `story/handover-notes.md` に `[TRY-NEXT]` タグでスレッドを追加する。次話の Step 2 で episode-brief に反映する
    - **却下** → 記録のみ（`discussion-log.md` に「Try 却下: {理由}」を追記）
    - **修正** → 設計者の修正版を `[TRY-NEXT]` として追加
