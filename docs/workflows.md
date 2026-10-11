@@ -127,7 +127,7 @@ Step G  設計者承認 → アーク設計ロック（執筆解禁）
 | --- | --- | --- |
 | 作者 (author) | novel-author | 本文執筆・改稿 |
 | アークレビュアー (arc-reviewer) | novel-arc-reviewer | 役割タグ準拠評価・ブリーフスコープ確認・改稿判定 |
-| 読者×N | novel-reader-* | ペルソナベースのフィードバック（`story/reader-memory-{ID}.md` で読書体験を蓄積。改稿発生時は Step 5 で最終稿を再評価） |
+| 読者×N | novel-reader | ペルソナベースのフィードバック（`story/reader-memory-{ID}.md` で読書体験を蓄積。改稿発生時は Step 5 で最終稿を再評価） |
 
 > モデル・ツール制限・権限モードの正本は `.claude/agents/*.md` のフロントマター（登録層）。スポーン時に `model` を指定して上書きしない。
 

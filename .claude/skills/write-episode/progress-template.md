@@ -22,7 +22,7 @@ step_status: "completed"
 ## Completed Steps
 
 - [x] step0: Initialize
-- [ ] step1: Create Team + Spawn Core
+- [ ] step1: Create Team
 - [ ] step2: Episode Brief Generation
 - [ ] step2q: Designer Query (optional)
 - [ ] step3: Author Draft
