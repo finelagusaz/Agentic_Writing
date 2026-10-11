@@ -166,10 +166,17 @@ def character_names() -> list[str]:
     return names
 
 
+# 実行層にどうしても作品の実例を置く行に付ける目印。付いた行だけ名前を許す。
+WORK_EXAMPLE_MARKER = "〔作品例〕"
+
+
 def is_framework_leak(name: str, line: str, path: Path) -> bool:
-    # TODO(設計者): 作品固有名の「漏れ」とみなす範囲を決める。
-    #   いまは実行層に名前が現れたら一律で漏れとする（最も厳しい既定）。
-    #   例示（「模範例: …」行）や CLAUDE.md の Gotchas を許容するかはここで判断する。
+    """方針: 作品固有の例示は story/（writing-guide.md 等）に置き、実行層からは参照する。
+    例外は目印〔作品例〕を明示した行だけ。推測（「例:」「模範」の有無）では許さない —
+    書き足すだけで通る抜け道になり、単一の模範例が毎話のブリーフに固定される問題も見逃すため。
+    ファイル単位の例外（CLAUDE.md 等）も設けない。"""
+    if WORK_EXAMPLE_MARKER in line:
+        return False
     # カタカナ名は前後がカタカナでないときだけ一致させる（レン ≠ レンズ・リファレンス）
     kana = "ァ-ヴー"
     return re.search(rf"(?<![{kana}]){re.escape(name)}(?![{kana}])", line) is not None
@@ -181,7 +188,8 @@ def check_work_specific_names() -> None:
         for i, line in enumerate(lines_of(path), 1):
             for name in names:
                 if is_framework_leak(name, line, path):
-                    report(path, i, f"作品固有の名前「{name}」（汎用の実行層では「主人公」等に置き換える）")
+                    report(path, i, f"作品固有の名前「{name}」（「主人公」等に置き換えるか、例示なら story/ へ移す。"
+                                         f"残す必要がある実例だけ行に {WORK_EXAMPLE_MARKER} を付ける）")
 
 
 def touches_exec_layer(file_path: str) -> bool:
