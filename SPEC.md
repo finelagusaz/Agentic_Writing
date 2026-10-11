@@ -59,6 +59,8 @@ Agentic Writing は、複数エージェントの役割分担により小説執�
 1. 変更はオーナーのファイルから着手する
 2. 派生ビュー（SPEC・workflows・CLAUDE.md・README）に同じ事実の言及があれば追随させる（数値・定義表を複製せず、参照のままであることを確認する）
 3. 各文書の固有価値: `SPEC.md` = 契約と成果物、`docs/workflows.md` = 図解と鳥瞰、`CLAUDE.md` = オンボーディングと Gotchas、`README.md` = 対外紹介（数値を書かない）
+4. 実行層の内部にも「生成側 ⇄ 参照側」の契約がある（arc-reviewer の出力フォーマット ⇄ judgment-logic、episode-brief 雛形 ⇄ author、writing-guide-spec ⇄ 実行層が読む writing-guide の節、series-tracker テンプレート ⇄ write-episode Step 1 の必須見出し）。片側を変えたら同じ変更で反対側も直す。エージェントや語を退役・改名したら、旧名を `scripts/check-prompts.py` の `RETIRED_TERMS` に加える。この検査は実行層への Edit/Write のたびに PostToolUse hook で自動実行される
+5. 作品固有の固有名詞・経緯・模範例は `story/` に置き、実行層には書かない（実行層では「主人公」等の一般名で書く）。作品の品質改善とフレームワークの改修は別コミットにする
 
 ## 3. スコープ
 
